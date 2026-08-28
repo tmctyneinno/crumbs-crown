@@ -1,8 +1,8 @@
 <!-- ===== HERO SECTION ===== -->
-<section class="relative min-h-screen bg-[#5A2F20] pt-20 overflow-hidden">
+<section class=" relative min-h-screen bg-[#5A2F20] pt-20 overflow-hidden">
 
     <!-- Large Background Wordmark - BACK LAYER -->
-    <div class="absolute inset-0 z-10 bg-center bg-no-repeat bg-[length:auto_75%] sm:bg-[length:auto_80%] lg:bg-[length:auto_90%] pointer-events-none" style="background-image: url('/images/crumbs-crown-bg.png');">
+    <div class=" absolute inset-0 z-10 bg-center bg-no-repeat bg-[length:auto_75%] sm:bg-[length:auto_80%] lg:bg-[length:auto_90%] pointer-events-none" style="background-image: url('/images/crumbs-crown-bg.png');">
        
     </div>
     <!-- ===== LEFT CONTENT ===== -->
