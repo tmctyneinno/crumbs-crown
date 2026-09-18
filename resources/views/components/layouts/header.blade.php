@@ -12,13 +12,9 @@
 
             <!-- Desktop Navigation -->
             <nav class="hidden lg:flex space-x-0">
-                <a href="/" class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors border-b-2 border-white">HOME</a>
-                <a href="/shop" class="text-white/70 hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors">SHOP</a>
-                <a href="/cakes" class="text-white/70 hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors">CAKES</a>
-                <a href="/corporate" class="text-white/70 hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors">CORPORATE GIFTING</a>
-                <a href="/wedding" class="text-white/70 hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors">WEDDING & EVENTS</a>
-                <a href="/about" class="text-white/70 hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors">ABOUT US</a>
-                <a href="/contact" class="text-white/70 hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors">CONTACT</a>
+                @foreach ([['home', 'HOME'], ['shop', 'SHOP'], ['cakes', 'CAKES'], ['corporate', 'CORPORATE GIFTING'], ['wedding', 'WEDDING & EVENTS'], ['about', 'ABOUT US'], ['contact', 'CONTACT']] as [$route, $label])
+                    <a href="{{ route($route) }}" class="{{ request()->routeIs($route) ? 'text-white/90 border-b-2 border-white' : 'text-white/70' }} hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors">{{ $label }}</a>
+                @endforeach
             </nav>
 
             <!-- Right Icons -->
@@ -63,13 +59,9 @@
          class="lg:hidden bg-[#3D2314] border-t border-[#5C3A2E]/20"
          style="display: none;">
         <div class="px-4 pt-2 pb-6 space-y-1">
-            <a href="/" class="text-white block px-3 py-3 text-base font-medium border-l-4 border-white bg-[#5C3A2E]/30">HOME</a>
-            <a href="/shop" class="text-white/80 hover:text-white hover:bg-[#5C3A2E]/30 block px-3 py-3 text-base font-medium border-l-4 border-transparent transition-colors">SHOP</a>
-            <a href="/cakes" class="text-white/80 hover:text-white hover:bg-[#5C3A2E]/30 block px-3 py-3 text-base font-medium border-l-4 border-transparent transition-colors">CAKES</a>
-            <a href="/corporate" class="text-white/80 hover:text-white hover:bg-[#5C3A2E]/30 block px-3 py-3 text-base font-medium border-l-4 border-transparent transition-colors">CORPORATE GIFTING</a>
-            <a href="/wedding" class="text-white/80 hover:text-white hover:bg-[#5C3A2E]/30 block px-3 py-3 text-base font-medium border-l-4 border-transparent transition-colors">WEDDING & EVENTS</a>
-            <a href="/about" class="text-white/80 hover:text-white hover:bg-[#5C3A2E]/30 block px-3 py-3 text-base font-medium border-l-4 border-transparent transition-colors">ABOUT US</a>
-            <a href="/contact" class="text-white/80 hover:text-white hover:bg-[#5C3A2E]/30 block px-3 py-3 text-base font-medium border-l-4 border-transparent transition-colors">CONTACT</a>
+            @foreach ([['home', 'HOME'], ['shop', 'SHOP'], ['cakes', 'CAKES'], ['corporate', 'CORPORATE GIFTING'], ['wedding', 'WEDDING & EVENTS'], ['about', 'ABOUT US'], ['contact', 'CONTACT']] as [$route, $label])
+                <a href="{{ route($route) }}" class="{{ request()->routeIs($route) ? 'text-white border-white bg-[#5C3A2E]/30' : 'text-white/80 border-transparent' }} hover:text-white hover:bg-[#5C3A2E]/30 block px-3 py-3 text-base font-medium border-l-4 transition-colors">{{ $label }}</a>
+            @endforeach
         </div>
     </div>
 </header>

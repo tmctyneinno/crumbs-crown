@@ -1,6 +1,6 @@
 <!-- ===== KNOW MORE ABOUT US SECTION ===== -->
 <section class="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white">
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-5xl mx-auto">
 
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
@@ -70,63 +70,6 @@
 
         </div>
 
-        <!-- Features Row -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-16">
-
-            <div class="flex flex-col items-center text-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-                <img src="{{ asset('images/premium.png') }}"
-                    alt="Premium Ingredients"
-                    class=" md:w-[30px] lg:w-[30px] h-auto object-contain drop-shadow-2xl shadow-primary" />
-
-                <h4 class="font-semibold text-[#1A1A1A] text-sm">Premium Ingredients</h4>
-                <p class="text-[#4A4A4A] text-xs">We only use the finest ingredients</p>
-            </div>
-
-            <div class="flex flex-col items-center text-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-                 <img src="{{ asset('images/master.png') }}"
-                    alt="Master Cake Artists"
-                    class=" md:w-[30px] lg:w-[30px] h-auto object-contain drop-shadow-2xl shadow-primary" />
-                <h4 class="font-semibold text-[#1A1A1A] text-sm">Master Cake Artists</h4>
-                <p class="text-[#4A4A4A] text-xs">Our team of experienced pastry chefs</p>
-            </div>
-
-            <div class="flex flex-col items-center text-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-                <img src="{{ asset('images/streamline-cyber_design-mug.png') }}"
-                    alt="Custom Designs"
-                    class=" md:w-[30px] lg:w-[30px] h-auto object-contain drop-shadow-2xl shadow-primary" />
-               
-                <h4 class="font-semibold text-[#1A1A1A] text-sm">Custom Designs</h4>
-                <p class="text-[#4A4A4A] text-xs">From fantasy to elegant reality</p>
-            </div>
-
-            <div class="flex flex-col items-center text-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-                <img src="{{ asset('images/solar_delivery-broken.png') }}"
-                    alt="Nationwide Delivery"
-                    class=" md:w-[30px] lg:w-[30px] h-auto object-contain drop-shadow-2xl shadow-primary" />
-               
-                <h4 class="font-semibold text-[#1A1A1A] text-sm">Nationwide Delivery</h4>
-                <p class="text-[#4A4A4A] text-xs">Delivered nationwide with safe packaging</p>
-            </div>
-
-            <div class="flex flex-col items-center text-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-                <img src="{{ asset('images/award-winning.png') }}"
-                    alt="Award Winning"
-                    class=" md:w-[30px] lg:w-[30px] h-auto object-contain drop-shadow-2xl shadow-primary" />
-               
-                <h4 class="font-semibold text-[#1A1A1A] text-sm">Award Winning</h4>
-                <p class="text-[#4A4A4A] text-xs">Recognised as one of the top in the country</p>
-            </div>
-
-            <div class="flex flex-col items-center text-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-                 <img src="{{ asset('images/made-love.png') }}"
-                    alt="Made With Love"
-                    class=" md:w-[30px] lg:w-[30px] h-auto object-contain drop-shadow-2xl shadow-primary" />
-               
-                <h4 class="font-semibold text-[#1A1A1A] text-sm">Made With Love</h4>
-                <p class="text-[#4A4A4A] text-xs">Every product made with love and perfection</p>
-            </div>
-
-        </div>
 
     </div>
 </section>
