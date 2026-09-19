@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:wght@400;600;700&display=swap');
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -9,9 +10,13 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
     --font-display: 'Anton', ui-sans-serif, system-ui, sans-serif;
-}
+    --font-serif: 'Playfair Display', ui-serif, Georgia, serif;
 
-@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+    --color-brand-dark: #4a2b23;
+    --color-brand-darker: #3a201a;
+    --color-brand-light: #7a4b3a;
+    --color-brand-cream: #f5ebe3;
+}
 
 @keyframes marquee-scroll {
     0% {
