@@ -1,6 +1,6 @@
 <x-layouts.app title="Weddings & Events | Crumbs & Crown">
     <x-layouts.header />
-     <livewire:layouts.banner
+    <livewire:layouts.banner
         tagline="Pastries"
         heading-line1="Baked Fresh"
         heading-line2="Made to Crave"
@@ -9,3 +9,4 @@
      <livewire:pastries.index/>
     <livewire:layouts.site-footer />
 </x-layouts.app>
+ 

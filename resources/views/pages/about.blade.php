@@ -1,8 +1,14 @@
 <x-layouts.app title="About Us | Crumbs & Crown">
     <x-layouts.header />
-    <main class="bg-stone-50 pt-20">
-        <section class="bg-[#3D2314] text-white"><div class="mx-auto grid min-h-[560px] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8"><div><p class="text-sm font-semibold uppercase tracking-[0.28em] text-amber-200">Our story</p><h1 class="mt-5 font-['Playfair_Display'] text-5xl leading-tight sm:text-6xl">Baked with intention. Shared with joy.</h1><p class="mt-6 max-w-lg text-lg leading-8 text-white/70">Crumbs & Crown is a Lagos bakery creating generous, beautiful food for the moments that deserve a little more care.</p><a href="{{ route('shop') }}" class="mt-8 inline-flex rounded-full bg-white px-7 py-3 font-semibold text-[#3D2314] hover:bg-amber-100">Visit the collection <span class="ml-3">→</span></a></div><img src="{{ asset('images/about-baker.jpg') }}" alt="Baker at work" class="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-2xl"></div></section>
-        <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8"><h2 class="font-['Playfair_Display'] text-4xl text-[#3D2314]">Good food makes room for people.</h2><p class="mt-4 max-w-2xl text-lg leading-8 text-stone-500">We believe the best bakery experiences are generous, personal and made with enough care that you can taste the difference.</p><div class="mt-10 grid gap-6 sm:grid-cols-3">@foreach (['Made in Lagos', 'Small-batch baking', 'Warm hospitality'] as $item)<article class="border-t-2 border-[#5A2F20] pt-5"><h3 class="font-['Playfair_Display'] text-2xl text-[#3D2314]">{{ $item }}</h3><p class="mt-2 leading-7 text-stone-500">The values behind every order that leaves our kitchen.</p></article>@endforeach</div></section>
-    </main>
+    <livewire:layouts.banner
+        tagline="About us"
+        heading-line1="The Story Behind"
+        heading-line2="Crumbs & Crown"
+        description="Great Confectionery should delight before, during and after the first taste."
+    />
+    <x-homepage.about_us />
+    
+    <livewire:aboutUs.index />
+   
     <livewire:layouts.site-footer />
-</x-layouts.app>
+</x-layouts.app> 

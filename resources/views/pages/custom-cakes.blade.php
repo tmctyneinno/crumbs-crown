@@ -1,8 +1,11 @@
 <x-layouts.app title="Corporate Gifting | Crumbs & Crown">
     <x-layouts.header />
-    <main class="bg-stone-50 pt-20">
-        <section class="bg-[#3D2314] text-white"><div class="mx-auto grid min-h-[560px] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8"><div><p class="text-sm font-semibold uppercase tracking-[0.28em] text-amber-200">Corporate gifting</p><h1 class="mt-5 font-['Playfair_Display'] text-5xl leading-tight sm:text-6xl">Thoughtful treats for your people.</h1><p class="mt-6 max-w-lg text-lg leading-8 text-white/70">Say thank you, welcome a new teammate or mark a milestone with beautifully presented gifts at any scale.</p><a href="{{ route('contact') }}" class="mt-8 inline-flex rounded-full bg-white px-7 py-3 font-semibold text-[#3D2314] hover:bg-amber-100">Request a gifting plan <span class="ml-3">→</span></a></div><img src="{{ asset('images/banana-cake-offer.jpg') }}" alt="Corporate cake gift" class="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-2xl"></div></section>
-        <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8"><h2 class="font-['Playfair_Display'] text-4xl text-[#3D2314]">Gifts that carry your thanks.</h2><p class="mt-4 max-w-2xl text-lg leading-8 text-stone-500">We can help you choose a thoughtful mix, coordinate delivery and create a polished presentation for every recipient.</p><div class="mt-10 grid gap-6 sm:grid-cols-3">@foreach (['Client gifts', 'Team celebrations', 'Branded orders'] as $item)<article class="border-t-2 border-[#5A2F20] pt-5"><h3 class="font-['Playfair_Display'] text-2xl text-[#3D2314]">{{ $item }}</h3><p class="mt-2 leading-7 text-stone-500">A warm, memorable gesture with the detail and reliability your business needs.</p></article>@endforeach</div></section>
-    </main>
+    <livewire:layouts.banner
+        tagline="Custom cake"
+        heading-line1="Your dream cake"
+        heading-line2="Made Just for you"
+        description="Have an idea in mind? From elegant wedding cakes to playful birthday creations, our cake artists turn your inspiration into a beautiful, delicious centerpiece made especially for you."
+    />
+    <livewire:custom-cake.index/>
     <livewire:layouts.site-footer />
-</x-layouts.app>
+</x-layouts.app> 

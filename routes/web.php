@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [SiteController::class, 'home'])->name('home');
 
 Route::get('/shop', [SiteController::class, 'shop'])->name('shop');
+Route::get('/cart', [SiteController::class, 'cart'])->name('cart');
+Route::get('/checkout', [SiteController::class, 'checkout'])->name('checkout');
 Route::get('/cakes', [SiteController::class, 'cakes'])->name('cakes');
 Route::get('/custom-cakes', [SiteController::class, 'customCakes'])->name('custom-cakes');
 Route::get('/pastries', [SiteController::class, 'pastries'])->name('pastries.index');

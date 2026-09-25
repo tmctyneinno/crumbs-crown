@@ -14,6 +14,16 @@ class SiteController extends Controller
         return view('pages.shop');
     }
 
+    public function cart()
+    {
+        return view('pages.cart');
+    }
+
+    public function checkout()
+    {
+        return view('pages.checkout');
+    }
+
     public function cakes()
     {
         return view('pages.cakes');

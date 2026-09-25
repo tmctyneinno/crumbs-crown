@@ -60,11 +60,13 @@
                 </div>
 
                 <!-- Learn More Button -->
-                <a href="#" class="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-[#3D2314] text-white text-sm font-semibold rounded-full hover:bg-[#5A2F20] transition-colors duration-300">
-                    Learn More
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7V17" />
-                    </svg>
+                <a href="#" class="inline-flex items-center gap-2 mt-8 px-4 py-2 bg-[#3D2314] text-white text-sm font-semibold rounded-full hover:bg-[#5A2F20] transition-colors duration-300">
+                    Learn More 
+                     <span class="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+                        <svg class="h-4 w-4" style="color: #4A2A16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7v9" />
+                        </svg>
+                    </span>
                 </a>
             </div>
 
@@ -72,4 +74,4 @@
 
 
     </div>
-</section>
+</section> 

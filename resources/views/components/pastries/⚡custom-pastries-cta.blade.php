@@ -24,7 +24,7 @@ new class extends Component
                     </p>
 
                     <a
-                        href="/custom-cakes"
+                        href="#"
                         wire:navigate
                         class="mt-5 inline-flex w-fit items-center gap-3 rounded-full bg-[#4A2A16] py-2 pl-6 pr-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#3A2011]"
                     >

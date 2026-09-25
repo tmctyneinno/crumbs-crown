@@ -1,8 +1,12 @@
 <x-layouts.app title="Contact | Crumbs & Crown">
     <x-layouts.header />
-    <main class="bg-stone-50 pt-20">
-        <section class="bg-[#3D2314] text-white"><div class="mx-auto grid min-h-[560px] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8"><div><p class="text-sm font-semibold uppercase tracking-[0.28em] text-amber-200">Let’s make something sweet</p><h1 class="mt-5 font-['Playfair_Display'] text-5xl leading-tight sm:text-6xl">Tell us what you are celebrating.</h1><p class="mt-6 max-w-lg text-lg leading-8 text-white/70">Our team is ready to help with an order, a custom idea or the right treat for your next gathering.</p></div><div class="rounded-[2rem] bg-white p-7 text-[#3D2314] shadow-2xl sm:p-10"><h2 class="font-['Playfair_Display'] text-3xl">Start a conversation</h2><form class="mt-6 space-y-4"><input class="w-full rounded-lg border border-stone-200 px-4 py-3" placeholder="Your name"><input type="email" class="w-full rounded-lg border border-stone-200 px-4 py-3" placeholder="Email address"><textarea class="h-28 w-full rounded-lg border border-stone-200 px-4 py-3" placeholder="Tell us about your order"></textarea><button class="w-full rounded-full bg-[#3D2314] px-6 py-3 font-semibold text-white hover:bg-[#5A2F20]">Send enquiry</button></form></div></div></section>
-        <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8"><h2 class="font-['Playfair_Display'] text-4xl text-[#3D2314]">Let’s plan your order.</h2><p class="mt-4 max-w-2xl text-lg leading-8 text-stone-500">Share your date, guest count and a little about what you are imagining. We will get back to you with the next steps.</p><div class="mt-10 grid gap-6 sm:grid-cols-3">@foreach (['Ikeja, Lagos', '+234 800 000 0000', 'hello@crumbsandcrown.ng'] as $item)<p class="border-t-2 border-[#5A2F20] pt-5 font-['Playfair_Display'] text-2xl text-[#3D2314]">{{ $item }}</p>@endforeach</div></section>
-    </main>
+     <livewire:layouts.banner
+        tagline="Connect"
+        heading-line1="We'd Love to"
+        heading-line2="Hear from you"
+        description="Whether you’re ordering a cake, planning an event or exploring corporate gifting, our team is here to help"
+    />
+    <livewire:connect.index/>
+    <livewire:homepage.client-reviews />
    <livewire:layouts.site-footer />
 </x-layouts.app>
