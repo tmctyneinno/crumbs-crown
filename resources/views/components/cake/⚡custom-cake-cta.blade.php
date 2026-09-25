@@ -29,8 +29,8 @@ new class extends Component
                         class="mt-5 inline-flex w-fit items-center gap-3 rounded-full bg-[#4A2A16] py-2 pl-6 pr-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#3A2011]"
                     >
                         Create your own custom cake
-                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
-                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+                            <svg class="h-4 w-4" style="color: #4A2A16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7v9" />
                             </svg>
                         </span>
