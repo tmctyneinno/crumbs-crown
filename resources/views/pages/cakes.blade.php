@@ -8,4 +8,4 @@
     />
     <livewire:cake.index/>
     <livewire:layouts.site-footer />
-</x-layouts.app>
+</x-layouts.app> 

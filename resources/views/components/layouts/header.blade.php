@@ -12,7 +12,7 @@
 
             <!-- Desktop Navigation -->
             <nav class="hidden lg:flex space-x-0">
-                @foreach ([['home', 'HOME'], ['shop', 'SHOP'], ['cakes', 'CAKES'], ['corporate', 'CORPORATE GIFTING'], ['wedding', 'WEDDING & EVENTS'], ['about', 'ABOUT US'], ['contact', 'CONTACT']] as [$route, $label])
+                @foreach ([['home', 'HOME'], ['shop', 'SHOP'], ['cakes', 'CAKES'], ['pastries.index', 'PASTRIES'], ['custom-cakes', 'CUSTOM CAKES'], ['about', 'ABOUT US'], ['connect', 'Connect']] as [$route, $label])
                     <a href="{{ route($route) }}" class="{{ request()->routeIs($route) ? 'text-white/90 border-b-2 border-white' : 'text-white/70' }} hover:text-white px-3 py-2 text-sm font-medium tracking-wide transition-colors">{{ $label }}</a>
                 @endforeach
             </nav>
@@ -59,7 +59,7 @@
          class="lg:hidden bg-[#3D2314] border-t border-[#5C3A2E]/20"
          style="display: none;">
         <div class="px-4 pt-2 pb-6 space-y-1">
-            @foreach ([['home', 'HOME'], ['shop', 'SHOP'], ['cakes', 'CAKES'], ['corporate', 'CORPORATE GIFTING'], ['wedding', 'WEDDING & EVENTS'], ['about', 'ABOUT US'], ['contact', 'CONTACT']] as [$route, $label])
+            @foreach ([['home', 'HOME'], ['shop', 'SHOP'], ['cakes', 'cakes'], ['pastries.index', 'PASTRIES'], ['custom-cakes', 'CUSTOM CAKES'], ['about', 'ABOUT US'], ['connect', 'Connect']] as [$route, $label])
                 <a href="{{ route($route) }}" class="{{ request()->routeIs($route) ? 'text-white border-white bg-[#5C3A2E]/30' : 'text-white/80 border-transparent' }} hover:text-white hover:bg-[#5C3A2E]/30 block px-3 py-3 text-base font-medium border-l-4 transition-colors">{{ $label }}</a>
             @endforeach
         </div>

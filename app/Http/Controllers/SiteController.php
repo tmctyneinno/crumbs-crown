@@ -19,14 +19,14 @@ class SiteController extends Controller
         return view('pages.cakes');
     }
 
-    public function corporate()
+    public function customCakes()
     {
-        return view('pages.corporate');
+        return view('pages.custom-cakes');
     }
 
-    public function wedding()
+    public function pastries()
     {
-        return view('pages.wedding');
+        return view('pages.pastries');
     }
 
     public function about()
@@ -34,8 +34,8 @@ class SiteController extends Controller
         return view('pages.about');
     }
 
-    public function contact()
+    public function connect()
     {
-        return view('pages.contact');
+        return view('pages.connect');
     }
 }
