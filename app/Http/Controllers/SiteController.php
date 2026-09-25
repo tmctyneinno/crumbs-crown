@@ -24,6 +24,16 @@ class SiteController extends Controller
         return view('pages.checkout');
     }
 
+    public function checkoutReview()
+    {
+        return view('pages.checkout-review');
+    }
+
+    public function checkoutOrderConfirmation()
+    {
+        return view('pages.checkout-order-confirmation');
+    }
+
     public function cakes()
     {
         return view('pages.cakes');
