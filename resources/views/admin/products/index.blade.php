@@ -9,10 +9,6 @@
         <a href="{{ route('admin.products.create') }}" class="rounded-md bg-[#633e2c] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#4f3022]">Add product</a>
     </div>
 
-    @if (session('status'))
-        <div role="status" class="mb-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
-
     <div class="overflow-hidden rounded-md border border-stone-200 bg-white">
         <div class="overflow-x-auto">
             <table class="w-full min-w-[700px] text-left text-sm">
@@ -32,7 +28,7 @@
                                 <div class="flex items-center gap-3">
                                     <img src="{{ $product->image_url }}" alt="" class="h-11 w-11 rounded object-cover">
                                     <span class="min-w-0">
-                                        <span class="block truncate font-medium text-stone-900">{{ $product->name }}</span>
+                                        <a href="{{ route('products.show', $product) }}" class="block truncate font-medium text-stone-900 hover:underline">{{ $product->name }}</a>
                                         <span class="mt-0.5 block max-w-sm truncate text-xs text-stone-500">{{ $product->description }}</span>
                                     </span>
                                 </div>

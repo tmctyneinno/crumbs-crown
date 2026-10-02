@@ -46,7 +46,7 @@ new class extends Component
 
         // Handle subscription logic here (e.g. dispatch event, call a service, etc.)
 
-        session()->flash('subscribed', 'Thanks for subscribing! Check your inbox for confirmation.');
+        $this->dispatch('toast', message: 'Thanks for subscribing! Check your inbox for confirmation.', type: 'success');
 
         $this->reset('email');
     }
@@ -205,12 +205,6 @@ new class extends Component
                                 </button>
                             </form>
 
-                            {{-- Success Message --}}
-                            @if (session('subscribed'))
-                                <p class="text-sm text-emerald-200 mt-3">
-                                    {{ session('subscribed') }}
-                                </p>
-                            @endif
                         </div>
 
                     </div>

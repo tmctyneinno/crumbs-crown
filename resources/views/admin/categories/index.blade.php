@@ -9,13 +9,6 @@
         <a href="{{ route('admin.categories.create') }}" class="rounded-md bg-[#633e2c] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#4f3022]">Add category</a>
     </div>
 
-    @if (session('status'))
-        <div role="status" class="mb-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
-    @if (session('error'))
-        <div role="alert" class="mb-5 rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{{ session('error') }}</div>
-    @endif
-
     <div class="overflow-hidden rounded-md border border-stone-200 bg-white">
         <div class="overflow-x-auto">
             <table class="w-full min-w-[640px] text-left text-sm">

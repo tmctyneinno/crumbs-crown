@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Mail\CustomerEnquiryMail;
+use App\Models\ContactEnquiry;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
@@ -127,10 +128,18 @@ new class extends Component
             'message' => trim($this->message),
         ];
 
+        ContactEnquiry::create([
+            'full_name' => $payload['fullName'],
+            'email' => $payload['email'],
+            'phone' => $payload['phone'] ?: null,
+            'enquiry_type' => $payload['enquiryType'],
+            'message' => $payload['message'],
+        ]);
+
         Mail::to('enquiry@crumbsandcrown.com')->send(new CustomerEnquiryMail($payload));
 
         $this->reset(['fullName', 'email', 'phone', 'enquiryType', 'message']);
-        $this->dispatch('message-sent');
+        $this->dispatch('toast', message: 'Thanks — your message has been sent. We will be in touch soon.', type: 'success');
     }
 
 }
@@ -307,13 +316,5 @@ new class extends Component
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('message-sent', () => {
-            alert('Thanks — your message has been sent to our team. We will be in touch soon.');
-        });
-    });
-</script>
 
 </div>

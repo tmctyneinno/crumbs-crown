@@ -7,6 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#f5f2ec] text-stone-900 antialiased">
+    <x-toast />
     <div class="min-h-screen lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
         <aside class="bg-[#34231d] px-5 py-6 text-white lg:min-h-screen">
             <a href="{{ route('admin.dashboard') }}" class="block">
@@ -15,9 +16,10 @@
             </a>
             <nav class="mt-8 flex gap-2 overflow-x-auto text-sm lg:flex-col">
                 <a href="{{ route('admin.dashboard') }}" class="shrink-0 rounded-md px-3 py-2.5 {{ request()->routeIs('admin.dashboard') ? 'bg-[#5c4035] text-white' : 'text-stone-300 hover:bg-[#463128]' }}">Overview</a>
+                <a href="{{ route('admin.orders.index') }}" class="shrink-0 rounded-md px-3 py-2.5 {{ request()->routeIs('admin.orders.*') ? 'bg-[#5c4035] text-white' : 'text-stone-300 hover:bg-[#463128]' }}">Orders</a>
+                <a href="{{ route('admin.enquiries.index') }}" class="shrink-0 rounded-md px-3 py-2.5 {{ request()->routeIs('admin.enquiries.*') ? 'bg-[#5c4035] text-white' : 'text-stone-300 hover:bg-[#463128]' }}">Enquiries</a>
                 <a href="{{ route('admin.categories.index') }}" class="shrink-0 rounded-md px-3 py-2.5 {{ request()->routeIs('admin.categories.*') ? 'bg-[#5c4035] text-white' : 'text-stone-300 hover:bg-[#463128]' }}">Categories</a>
                 <a href="{{ route('admin.products.index') }}" class="shrink-0 rounded-md px-3 py-2.5 {{ request()->routeIs('admin.products.*') ? 'bg-[#5c4035] text-white' : 'text-stone-300 hover:bg-[#463128]' }}">Products</a>
-                <a href="{{ route('shop') }}" class="shrink-0 rounded-md px-3 py-2.5 text-stone-300 hover:bg-[#463128]">View shop</a>
             </nav>
             <div class="mt-8 border-t border-white/10 pt-5 lg:mt-12">
                 <p class="truncate text-sm font-medium">{{ auth()->user()->name }}</p>

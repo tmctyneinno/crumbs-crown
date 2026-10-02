@@ -28,21 +28,21 @@ new class extends Component
         return $this->subtotal;
     }
 
-    public function increment(int $id): void
+    public function increment(string|int $lineId): void
     {
-        app(ShoppingCart::class)->changeQuantity($id, 1);
+        app(ShoppingCart::class)->changeLineQuantity($lineId, 1);
         $this->refreshCart();
     }
 
-    public function decrement(int $id): void
+    public function decrement(string|int $lineId): void
     {
-        app(ShoppingCart::class)->changeQuantity($id, -1);
+        app(ShoppingCart::class)->changeLineQuantity($lineId, -1);
         $this->refreshCart();
     }
 
-    public function remove(int $id): void
+    public function remove(string|int $lineId): void
     {
-        app(ShoppingCart::class)->remove($id);
+        app(ShoppingCart::class)->removeLine($lineId);
         $this->refreshCart();
     }
 
@@ -54,6 +54,12 @@ new class extends Component
 
     public function proceedToCheckout()
     {
+        if ($this->items === []) {
+            $this->dispatch('toast', message: 'Add a product to your cart before checking out.', type: 'error');
+
+            return;
+        }
+
         return redirect()->route('checkout');
     }
 };
@@ -66,7 +72,7 @@ new class extends Component
         <div class="lg:col-span-2 rounded-2xl border border-neutral-300 p-6">
             <div class="divide-y divide-neutral-200">
                 @forelse ($items as $item)
-                    <div wire:key="item-{{ $item['id'] }}" class="flex flex-col sm:flex-row gap-4 py-6 first:pt-0">
+                    <div wire:key="item-{{ $item['line_id'] }}" class="flex flex-col sm:flex-row gap-4 py-6 first:pt-0">
 
                         <img
                             src="{{ $item['image'] }}"
@@ -76,14 +82,14 @@ new class extends Component
                         />
 
                         <div class="flex-1 flex flex-col">
-                            <h3 class="text-lg font-semibold text-neutral-900">{{ $item['name'] }}</h3>
+                            <h3 class="text-lg font-semibold text-neutral-900"><a href="{{ route('products.show', $item['id']) }}" wire:navigate class="hover:text-[#633e2c] hover:underline">{{ $item['name'] }}</a></h3>
                             <p class="text-sm text-neutral-500">{{ $item['size'] }}</p>
 
                             <div class="flex items-center gap-4 mb-3">
                                 <div class="inline-flex items-center rounded-lg border border-neutral-300 overflow-hidden">
                                     <button
                                         type="button"
-                                        wire:click="decrement({{ $item['id'] }})"
+                                        wire:click="decrement('{{ $item['line_id'] }}')"
                                         class="h-9 w-9 flex items-center justify-center text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
                                         {{ $item['qty'] <= 1 ? 'disabled' : '' }}
                                         aria-label="Decrease quantity"
@@ -95,7 +101,7 @@ new class extends Component
                                     </span>
                                     <button
                                         type="button"
-                                        wire:click="increment({{ $item['id'] }})"
+                                        wire:click="increment('{{ $item['line_id'] }}')"
                                         class="h-9 w-9 flex items-center justify-center text-neutral-700 hover:bg-neutral-100"
                                         aria-label="Increase quantity"
                                     >
@@ -111,17 +117,29 @@ new class extends Component
                             <div class="flex items-center gap-4 text-sm">
                                 <button
                                     type="button"
-                                    wire:click="remove({{ $item['id'] }})"
+                                    wire:click="remove('{{ $item['line_id'] }}')"
                                     wire:confirm="Remove this item from your cart?"
                                     class="underline text-neutral-700 hover:text-neutral-900"
                                 >
                                     Remove
                                 </button>
                             </div>
+                            @if (! empty($item['options']['flavour']))
+                                <p class="mt-2 text-xs text-neutral-500">Flavour: {{ $item['options']['flavour'] }}</p>
+                            @endif
+                            @if (! empty($item['options']['inscription']))
+                                <p class="mt-1 text-xs text-neutral-500">Inscription: {{ $item['options']['inscription'] }}</p>
+                            @endif
+                            @if (! empty($item['options']['topper']) && $item['options']['topper'] !== 'No Topper')
+                                <p class="mt-1 text-xs text-neutral-500">{{ $item['options']['topper'] }}</p>
+                            @endif
                         </div>
                     </div>
                 @empty
-                    <p class="py-10 text-center text-sm text-neutral-500">Your cart is empty.</p>
+                    <div class="py-10 text-center">
+                        <p class="text-sm text-neutral-500">Your cart is empty.</p>
+                        <a href="{{ route('shop') }}" wire:navigate class="mt-3 inline-block text-sm font-semibold text-[#633e2c] hover:underline">Browse the shop</a>
+                    </div>
                 @endforelse
             </div>
 
@@ -165,6 +183,7 @@ new class extends Component
                 type="button"
                 wire:click="proceedToCheckout"
                 wire:loading.attr="disabled"
+                @disabled($items === [])
                 class="w-full rounded-full bg-amber-950 py-3 text-xs font-bold uppercase tracking-wide text-white hover:bg-amber-900 transition disabled:opacity-60 mb-3"
             >
                 Proceed To Checkout

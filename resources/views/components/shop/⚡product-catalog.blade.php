@@ -211,8 +211,7 @@ new class extends Component
         $cart->add($product);
         unset($this->cartQuantities);
         $this->dispatch('cart-updated')->to('cart-icon');
-
-        session()->flash('toast', $product->name . ' added successfully.');
+        $this->dispatch('toast', message: $product->name . ' added successfully.', type: 'success');
     }
 
     public function adjustCartQuantity(int $productId, int $change, ShoppingCart $cart): void
@@ -291,21 +290,6 @@ new class extends Component
 ?>
 
 <div class="min-h-screen bg-[#FBF7F0]" x-data="{ mobileFiltersOpen: false }">
-
-    {{-- Toast --}}
-    @if (session('toast'))
-        <div
-            x-data="{ show: true }"
-            x-init="setTimeout(() => show = false, 3000)"
-            x-show="show"
-            x-transition
-            role="status"
-            aria-live="polite"
-            class="fixed top-5 right-5 z-50 rounded-xl bg-[#4A2A16] px-5 py-3 text-sm font-medium text-white shadow-lg"
-        >
-            {{ session('toast') }}
-        </div>
-    @endif
 
     <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-6">
         <div class="flex gap-8">
@@ -412,7 +396,7 @@ new class extends Component
                                 </div>
 
                                 <div class="flex flex-1 flex-col gap-2 p-4">
-                                    <h3 class="text-base font-semibold text-stone-800">{{ $product['name'] }}</h3>
+                                    <h3 class="text-base font-semibold text-stone-800"><a href="{{ route('products.show', $product['id']) }}" wire:navigate class="hover:text-[#633e2c] hover:underline">{{ $product['name'] }}</a></h3>
                                     <p class="text-sm leading-snug text-stone-500">{{ \Illuminate\Support\Str::limit($product['desc'], 15) }}</p>
 
                                     <div class="flex items-center gap-1.5">

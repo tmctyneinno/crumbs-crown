@@ -1,6 +1,7 @@
 <?php
 
 use Carbon\Carbon;
+use App\Services\ShoppingCart;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -14,7 +15,7 @@ new class extends Component
     public string $phone = '';
     public string $email = '';
     public string $notes = '';
-
+  
     // ----- Delivery -----
     public string $deliveryMethod = ''; // 'delivery' | 'pickup'
     public string $deliveryAddress = '';
@@ -24,12 +25,33 @@ new class extends Component
     public int $viewMonth;
     public string $selectedDate;
 
-    public function mount(): void
+    public array $cartItems = [];
+
+    public function mount(ShoppingCart $cart): void
     {
         $today = Carbon::now();
         $this->viewYear = (int) $today->format('Y');
         $this->viewMonth = (int) $today->format('n');
         $this->selectedDate = $today->format('Y-m-d');
+        $this->cartItems = $cart->items();
+
+        $checkout = session('checkout', []);
+        $customer = $checkout['customer'] ?? [];
+        $delivery = $checkout['delivery'] ?? [];
+
+        $this->fullName = $customer['name'] ?? '';
+        $this->phone = $customer['phone'] ?? '';
+        $this->email = $customer['email'] ?? '';
+        $this->notes = $delivery['notes'] ?? '';
+        $this->deliveryMethod = $delivery['method'] ?? '';
+        $this->deliveryAddress = $delivery['address'] ?? '';
+        $this->selectedDate = $delivery['date'] ?? $this->selectedDate;
+    }
+
+    #[Computed]
+    public function cartSubtotal(): int
+    {
+        return collect($this->cartItems)->sum(fn (array $item) => $item['price'] * $item['qty']);
     }
 
     #[Computed]
@@ -113,16 +135,34 @@ new class extends Component
         ];
     }
 
-    public function proceedToNextStep()
+    public function proceedToNextStep(ShoppingCart $cart)
     {
         $this->validate();
+
+        if ($cart->items() === []) {
+            return redirect()->route('cart')->with('error', 'Add a product to your cart before checking out.');
+        }
+
+        session()->put('checkout', [
+            'customer' => [
+                'name' => $this->fullName,
+                'phone' => $this->phone,
+                'email' => $this->email,
+            ],
+            'delivery' => [
+                'method' => $this->deliveryMethod,
+                'address' => $this->deliveryMethod === 'delivery' ? $this->deliveryAddress : '',
+                'date' => $this->selectedDate,
+                'notes' => $this->notes,
+            ],
+        ]);
 
         return redirect()->route('checkout.review');
     }
 };
 ?>
 
-<div class="max-w-5xl mx-auto px-4 py-50">
+<div class="mx-auto max-w-5xl px-4 pb-16 pt-32 sm:px-6">
     <div class="rounded-3xl border border-neutral-300 p-6 sm:p-10">
 
         {{-- ============ Step indicator ============ --}}
@@ -159,6 +199,31 @@ new class extends Component
         {{-- ============ Heading ============ --}}
         <h2 class="font-serif text-2xl text-amber-950 mb-1">Contact and Delivery Details</h2>
         <p class="text-sm text-amber-900/70 mb-8">So we can reach and deliver your order</p>
+
+        <section class="mb-8 rounded-xl border border-neutral-200 bg-white p-5" aria-labelledby="checkout-order-heading">
+            <h3 id="checkout-order-heading" class="text-sm font-bold uppercase tracking-wide text-neutral-900">Your order</h3>
+            <div class="mt-4 divide-y divide-neutral-100">
+                @foreach ($cartItems as $item)
+                    <div class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+                        <div class="min-w-0">
+                            <a href="{{ route('products.show', $item['id']) }}" wire:navigate class="font-medium text-neutral-900 hover:underline">{{ $item['name'] }}</a>
+                            <p class="mt-1 text-xs text-neutral-500">{{ $item['size'] }} · Qty {{ $item['qty'] }}</p>
+                            @if (! empty($item['options']['flavour']))
+                                <p class="mt-1 text-xs text-neutral-500">Flavour: {{ $item['options']['flavour'] }}</p>
+                            @endif
+                            @if (! empty($item['options']['inscription']))
+                                <p class="mt-1 text-xs text-neutral-500">Inscription: {{ $item['options']['inscription'] }}</p>
+                            @endif
+                        </div>
+                        <p class="shrink-0 text-sm font-semibold text-neutral-900">&#8358;{{ number_format($item['price'] * $item['qty']) }}</p>
+                    </div>
+                @endforeach
+            </div>
+            <div class="mt-4 flex justify-between border-t border-neutral-200 pt-4 text-sm font-semibold text-neutral-900">
+                <span>Subtotal</span>
+                <span>&#8358;{{ number_format($this->cartSubtotal) }}</span>
+            </div>
+        </section>
 
         {{-- ============ Contact fields ============ --}}
         <div class="space-y-5 mb-8">

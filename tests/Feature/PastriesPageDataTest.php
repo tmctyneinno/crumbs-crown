@@ -41,6 +41,7 @@ class PastriesPageDataTest extends TestCase
 
         Livewire::test('pastries.index')
             ->assertSee('Database Sausage Roll')
+            ->assertSee(route('products.show', $pastry), false)
             ->assertSee('Database Chin Chin')
             ->assertDontSee('Hidden Pastry');
 
@@ -56,7 +57,7 @@ class PastriesPageDataTest extends TestCase
 
         Livewire::test('pastries.pastries-collection', ['pastries' => [$card]])
             ->call('addToCart', $pastry->id)
-            ->assertSee('Database Sausage Roll added successfully.')
+            ->assertDispatched('toast')
             ->assertSee('adjustCartQuantity('.$pastry->id.', -1)', false);
 
         $this->assertSame([$pastry->id => 1], session('cart'));

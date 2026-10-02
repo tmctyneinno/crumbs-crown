@@ -17,7 +17,7 @@ class CakeIndexPageTest extends TestCase
         $cakes = Category::create(['name' => 'Cakes', 'slug' => 'cakes']);
         $pastries = Category::create(['name' => 'Pastries', 'slug' => 'pastries']);
 
-        Product::create([
+        $cake = Product::create([
             'name' => 'Wedding Celebration Cake',
             'description' => 'A cake for the wedding occasion.',
             'price' => 48000,
@@ -47,6 +47,7 @@ class CakeIndexPageTest extends TestCase
             ->assertSee('Cupcake Cakes')
             ->assertSee('Corporate Cakes')
             ->assertSee('Wedding Celebration Cake')
+            ->assertSee(route('products.show', $cake), false)
             ->assertDontSee('Hidden Cake')
             ->assertDontSee('Sausage Roll')
             ->assertSee('flex-nowrap')

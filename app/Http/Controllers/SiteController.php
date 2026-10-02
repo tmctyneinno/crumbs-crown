@@ -2,6 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\Order;
+use App\Contracts\PaymentGateway;
+use App\Services\StripeCheckoutService;
+use App\Services\ShoppingCart;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
 class SiteController extends Controller
 {
     public function home()
@@ -14,24 +23,104 @@ class SiteController extends Controller
         return view('pages.shop');
     }
 
+    public function product(Product $product): View
+    {
+        abort_unless($product->is_active, 404);
+
+        return view('pages.product', [
+            'product' => $product->load('category'),
+        ]);
+    } 
+
+    public function addProductToCart(Product $product, ShoppingCart $cart): RedirectResponse
+    {
+        abort_unless($product->is_active, 404);
+
+        $cart->add($product);
+
+        return redirect()->route('products.show', $product)
+            ->with('status', $product->name . ' added to your cart.');
+    }
+
     public function cart()
     {
         return view('pages.cart');
     }
 
-    public function checkout()
+    public function checkout(ShoppingCart $cart)
     {
+        if ($cart->items() === []) {
+            return redirect()->route('cart')->with('error', 'Add a product to your cart before checking out.');
+        }
+
         return view('pages.checkout');
     }
 
-    public function checkoutReview()
+    public function checkoutReview(ShoppingCart $cart)
     {
+        if ($cart->items() === []) {
+            return redirect()->route('cart')->with('error', 'Add a product to your cart before checking out.');
+        }
+
+        if (! session()->has('checkout')) {
+            return redirect()->route('checkout')->with('error', 'Enter your contact and delivery details to review your order.');
+        }
+
         return view('pages.checkout-review');
     }
 
-    public function checkoutOrderConfirmation()
+    public function checkoutOrderConfirmation(
+        string $orderNumber,
+        Request $request,
+        PaymentGateway $gateway,
+        StripeCheckoutService $checkout,
+        ShoppingCart $cart,
+    )
     {
-        return view('pages.checkout-order-confirmation');
+        $order = Order::query()->where('order_number', $orderNumber)->with('items')->firstOrFail();
+
+        if ($order->payment_status !== 'paid') {
+            $sessionId = $request->query('session_id');
+
+            abort_unless(
+                is_string($sessionId)
+                    && $order->stripe_checkout_session_id
+                    && hash_equals($order->stripe_checkout_session_id, $sessionId),
+                403,
+            );
+
+            $stripeSession = $gateway->retrieveCheckoutSession($sessionId);
+
+            if (($stripeSession->payment_status ?? null) !== 'paid'
+                || ($stripeSession->metadata->order_number ?? null) !== $order->order_number) {
+                return redirect()->route('checkout.review')
+                    ->with('error', 'Your payment is still pending. You can retry checkout.');
+            }
+
+            $checkout->markPaid($order, $stripeSession);
+        }
+
+        $cart->clear();
+        session()->forget('checkout');
+
+        return view('pages.checkout-order-confirmation', [
+            'order' => $order->fresh('items'),
+        ]);
+    }
+
+    public function checkoutCancelled(string $orderNumber): RedirectResponse
+    {
+        $order = Order::query()->where('order_number', $orderNumber)->firstOrFail();
+
+        if ($order->payment_status !== 'paid') {
+            $order->update([
+                'status' => 'payment_cancelled',
+                'payment_status' => 'cancelled',
+            ]);
+        }
+
+        return redirect()->route('checkout.review')
+            ->with('error', 'Payment was cancelled. Your cart is ready when you are.');
     }
 
     public function cakes()

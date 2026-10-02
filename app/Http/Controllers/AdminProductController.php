@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,10 @@ class AdminProductController extends Controller
             'activeProducts' => Product::active()->count(),
             'categoryCount' => Category::count(),
             'latestProducts' => Product::query()->with('category')->latest()->take(5)->get(),
+            'totalOrders' => Order::count(),
+            'paidOrders' => Order::query()->where('payment_status', 'paid')->count(),
+            'ordersNeedingPayment' => Order::query()->whereIn('payment_status', ['unpaid', 'failed', 'cancelled'])->count(),
+            'latestOrders' => Order::query()->latest()->take(5)->get(),
         ]);
     }
 

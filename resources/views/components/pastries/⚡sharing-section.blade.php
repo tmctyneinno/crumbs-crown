@@ -27,7 +27,7 @@ new class extends Component
     public function addToCart(int $productId): void
     {
         // Replace with real cart logic (session, DB, or a Cart service).
-        session()->flash('toast', 'Added to cart.');
+        $this->dispatch('toast', message: 'Added to cart.', type: 'success');
         $this->dispatch('cart-updated', productId: $productId)->to('cart-icon');
     }
 };

@@ -25,7 +25,7 @@ class ShoppingCartTest extends TestCase
 
         Livewire::test('shop.product-catalog')
             ->call('addToCart', $product->id)
-            ->assertSee('Cart test cake added successfully.')
+            ->assertDispatched('toast')
             ->assertSee('adjustCartQuantity('.$product->id.', -1)', false)
             ->call('addToCart', $product->id)
             ->assertDispatched('cart-updated');
@@ -40,6 +40,7 @@ class ShoppingCartTest extends TestCase
         $this->get('/cart')
             ->assertOk()
             ->assertSee('Cart test cake')
+            ->assertSee(route('products.show', $product), false)
             ->assertSee('₦12,000');
 
         Livewire::test('cart.index')->call('increment', $product->id);
@@ -64,5 +65,30 @@ class ShoppingCartTest extends TestCase
             ->assertSee('Add to Cart');
 
         $this->assertSame([], session('cart'));
+    }
+
+    public function test_cart_cannot_proceed_to_checkout_when_empty(): void
+    {
+        Livewire::test('cart.index')
+            ->call('proceedToCheckout')
+            ->assertDispatched('toast')
+            ->assertSee('Your cart is empty.');
+    }
+
+    public function test_cart_proceeds_to_checkout_when_it_contains_products(): void
+    {
+        $category = Category::create(['name' => 'Cakes', 'slug' => 'cakes']);
+        $product = Product::create([
+            'name' => 'Checkout Cake',
+            'description' => 'Ready for checkout.',
+            'price' => 20000,
+            'category_id' => $category->id,
+        ]);
+
+        app(\App\Services\ShoppingCart::class)->add($product);
+
+        Livewire::test('cart.index')
+            ->call('proceedToCheckout')
+            ->assertRedirect(route('checkout'));
     }
 }

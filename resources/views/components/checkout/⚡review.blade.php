@@ -1,5 +1,8 @@
 <?php
 
+use App\Services\ShoppingCart;
+use App\Services\StripeCheckoutService;
+use Carbon\Carbon;
 use Livewire\Component;
 
 new class extends Component
@@ -7,54 +10,37 @@ new class extends Component
     public array $wizardSteps = ['Occasion', 'Size', 'Flavour', 'Style', 'Design', 'Details', 'Review'];
     public int $currentStep = 7; // "Review"
 
-    /**
-     * In a real app these would come from the order draft in session / DB,
-     * built up across the previous wizard steps.
-     */
-    public array $orderItems = [
-        [
-            'name'        => 'The Birthday Classic',
-            'size'        => '10" Red Velvet',
-            'inscription' => 'Happy Birthday Sarah!',
-            'qty'         => 1,
-            'image'       => 'images/cakes/birthday-classic.svg',
-        ],
-        [
-            'name'        => 'The Birthday Classic',
-            'size'        => '10" Red Velvet',
-            'inscription' => 'Happy Birthday Sarah!',
-            'qty'         => 1,
-            'image'       => 'images/cakes/chocolate-fudge-cake.svg',
-        ],
-        [
-            'name'        => 'The Birthday Classic',
-            'size'        => '10" Red Velvet',
-            'inscription' => 'Happy Birthday Sarah!',
-            'qty'         => 1,
-            'image'       => 'images/cakes/red-velvet-cake.svg',
-        ],
-    ];
+    public array $orderItems = [];
+    public array $customer = ['name' => '', 'email' => '', 'phone' => ''];
+    public array $delivery = ['method' => '', 'address' => '', 'dueDate' => '', 'notes' => ''];
+    public int $subtotal = 0;
 
-    public array $customer = [
-        'name'  => 'Tolu Adewole',
-        'email' => 'Toluadewole@gmail.com',
-        'phone' => '+234947362801',
-    ];
+    public function mount(ShoppingCart $cart): void
+    {
+        $checkout = session('checkout', []);
+        $customer = $checkout['customer'] ?? [];
+        $delivery = $checkout['delivery'] ?? [];
 
-    public array $delivery = [
-        'address' => '10A, Admiralty Way, Lekki, Lagos',
-        'dueDate' => '25th May, 2026',
-        'time'    => '12:00 PM',
-    ];
-
-    public string $personalMessage = 'Happy Birthday Sarah!!';
-
-    public int $subtotal = 105000;
-    public int $deliveryFee = 3500;
+        $this->orderItems = $cart->items();
+        $this->customer = [
+            'name' => $customer['name'] ?? '',
+            'email' => $customer['email'] ?? '',
+            'phone' => $customer['phone'] ?? '',
+        ];
+        $this->delivery = [
+            'method' => $delivery['method'] ?? '',
+            'address' => $delivery['address'] ?? '',
+            'dueDate' => filled($delivery['date'] ?? null)
+                ? Carbon::parse($delivery['date'])->format('l, j F Y')
+                : '',
+            'notes' => $delivery['notes'] ?? '',
+        ];
+        $this->subtotal = collect($this->orderItems)->sum(fn (array $item) => $item['price'] * $item['qty']);
+    }
 
     public function getTotalProperty(): int
     {
-        return $this->subtotal + $this->deliveryFee;
+        return $this->subtotal;
     }
 
     /**
@@ -63,12 +49,18 @@ new class extends Component
      */
     public function editSection(string $step)
     {
-        return redirect()->route('checkout.step', ['step' => $step]);
+        return redirect()->route($step === 'order' ? 'cart' : 'checkout');
     }
 
-    public function proceedToPayment()
+    public function proceedToPayment(StripeCheckoutService $checkout, ShoppingCart $cart)
     {
-        return redirect()->route('checkout.order-confirmation');
+        try {
+            return $this->redirect($checkout->start($cart));
+        } catch (\Stripe\Exception\AuthenticationException $exception) {
+            $this->dispatch('toast', message: 'Payment is temporarily unavailable. Please contact us to complete your order.', type: 'error');
+        } catch (\Throwable $exception) {
+            $this->dispatch('toast', message: 'Payment could not be started. Please try again.', type: 'error');
+        }
     }
 };
 ?>
@@ -108,7 +100,7 @@ new class extends Component
         </div>
 
         {{-- ============ Heading ============ --}}
-        <h2 class="font-serif text-2xl text-amber-950 mb-1">Almost There</h2>
+        <h2 class=" text-2xl text-amber-950 mb-1">Almost There</h2>
         <p class="text-sm text-amber-900/70 mb-8">Please review your order details before completing payment.</p>
 
         {{-- ============ Content ============ --}}
@@ -119,7 +111,7 @@ new class extends Component
 
                 {{-- Your Order --}}
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-serif text-xl text-amber-950">Your Order</h3>
+                    <h3 class=" text-xl text-amber-950">Your Order</h3>
                     <button type="button" wire:click="editSection('order')" class="inline-flex items-center gap-1 text-sm font-medium text-amber-900 underline">
                         Edit
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
@@ -132,16 +124,24 @@ new class extends Component
                     @foreach ($orderItems as $item)
                         <div wire:key="review-item-{{ $loop->index }}" class="flex gap-4">
                             <img
-                                src="{{ asset($item['image']) }}"
+                                src="{{ $item['image'] }}"
                                 alt="{{ $item['name'] }}"
                                 class="h-16 w-16 shrink-0 rounded-lg object-cover"
                                 loading="lazy"
                             />
                             <div>
-                                <p class="font-serif text-lg text-neutral-900 leading-tight">{{ $item['name'] }}</p>
-                                <p class="text-sm text-neutral-500">{{ $item['size'] }}</p>
-                                <p class="text-sm text-neutral-500">Inscription: {{ $item['inscription'] }}</p>
-                                <p class="text-sm text-neutral-500">Quantity: {{ $item['qty'] }}</p>
+                                <p class=" text-lg text-neutral-900 leading-tight">{{ $item['name'] }}</p>
+                                <p class="text-sm text-neutral-500">{{ $item['size'] }} · Quantity: {{ $item['qty'] }}</p>
+                                @if (! empty($item['options']['flavour']))
+                                    <p class="text-sm text-neutral-500">Flavour: {{ $item['options']['flavour'] }}</p>
+                                @endif
+                                @if (! empty($item['options']['inscription']))
+                                    <p class="text-sm text-neutral-500">Inscription: {{ $item['options']['inscription'] }}</p>
+                                @endif
+                                @if (! empty($item['options']['topper']) && $item['options']['topper'] !== 'No Topper')
+                                    <p class="text-sm text-neutral-500">{{ $item['options']['topper'] }}</p>
+                                @endif
+                                <p class="text-sm text-neutral-700">&#8358;{{ number_format($item['price'] * $item['qty']) }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -151,7 +151,7 @@ new class extends Component
 
                 {{-- Customer Details --}}
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-serif text-xl text-amber-950">Customer Details</h3>
+                    <h3 class=" text-xl text-amber-950">Customer Details</h3>
                     <button type="button" wire:click="editSection('contact')" class="inline-flex items-center gap-1 text-sm font-medium text-amber-900 underline">
                         Edit
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
@@ -169,7 +169,7 @@ new class extends Component
 
                 {{-- Delivery Details --}}
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-serif text-xl text-amber-950">Delivery Details</h3>
+                    <h3 class=" text-xl text-amber-950">Delivery Details</h3>
                     <button type="button" wire:click="editSection('details')" class="inline-flex items-center gap-1 text-sm font-medium text-amber-900 underline">
                         Edit
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
@@ -178,24 +178,20 @@ new class extends Component
                     </button>
                 </div>
                 <div class="text-sm text-neutral-700 space-y-1">
-                    <p>Address: {{ $delivery['address'] }}</p>
+                    <p>Method: {{ ucfirst($delivery['method']) }}</p>
+                    @if ($delivery['method'] === 'delivery')
+                        <p>Address: {{ $delivery['address'] }}</p>
+                    @endif
                     <p>Due Date: {{ $delivery['dueDate'] }}</p>
-                    <p>Time: {{ $delivery['time'] }}</p>
                 </div>
 
                 <hr class="my-6 border-neutral-200">
 
-                {{-- Personal Message --}}
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-serif text-xl text-amber-950">Personal Message</h3>
-                    <button type="button" wire:click="editSection('details')" class="inline-flex items-center gap-1 text-sm font-medium text-amber-900 underline">
-                        Edit
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
-                        </svg>
-                    </button>
-                </div>
-                <p class="text-sm text-neutral-700">&ldquo;{{ $personalMessage }}&rdquo;</p>
+                @if ($delivery['notes'])
+                    <hr class="my-6 border-neutral-200">
+                    <h3 class=" text-xl text-amber-950 mb-3">Order notes</h3>
+                    <p class="text-sm text-neutral-700">{{ $delivery['notes'] }}</p>
+                @endif
             </div>
 
             {{-- Right: order summary --}}
@@ -209,14 +205,14 @@ new class extends Component
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-neutral-600">Delivery</span>
-                        <span class="font-semibold text-neutral-900">₦{{ number_format($deliveryFee) }}</span>
+                        <span class="text-neutral-500">Calculated separately</span>
                     </div>
                 </div>
 
                 <hr class="my-4 border-neutral-200">
 
                 <div class="flex items-center justify-between mb-6">
-                    <span class="text-base font-bold text-neutral-900">Total</span>
+                    <span class="text-base font-bold text-neutral-900">Subtotal</span>
                     <span class="text-lg font-bold text-neutral-900">₦{{ number_format($this->total) }}</span>
                 </div>
 

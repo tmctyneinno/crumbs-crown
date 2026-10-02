@@ -82,6 +82,19 @@ php artisan storage:link
 
 Manage storefront categories, images, visibility, and display order at `/admin/categories`. Product forms use these categories, and the shop filters and homepage category cards read from the same records.
 
+## Stripe checkout
+
+Add Stripe credentials to the server's `.env` file. Never commit secret or webhook signing keys:
+
+```dotenv
+STRIPE_KEY=your-publishable-key
+STRIPE_SECRET=your-secret-key
+STRIPE_WEBHOOK_SECRET=your-webhook-signing-secret
+STRIPE_CURRENCY=ngn
+```
+
+Run `php artisan migrate` to create the order tables. Configure a Stripe webhook at `https://your-domain/stripe/webhook` for `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, and `checkout.session.expired`. Use Stripe test credentials until the end-to-end flow has been verified in test mode.
+
 php artisan admin:create
 
 Admin Credential
@@ -90,3 +103,7 @@ Crumbs & Crown Admin
 admin@crumbscrown.test
 CrumbsCrown!2026
 
+% npm run dev:all
+
+Visa
+4242424242424242

@@ -2,17 +2,24 @@
 
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminCategoryController;
+use App\Http\Controllers\AdminEnquiryController;
+use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\SiteController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SiteController::class, 'home'])->name('home');
 
-Route::get('/shop', [SiteController::class, 'shop'])->name('shop');
+Route::get('/shop', [SiteController::class, 'shop'])->name('shop'); 
+Route::get('/products/{product}', [SiteController::class, 'product'])->name('products.show');
+Route::post('/products/{product}/cart', [SiteController::class, 'addProductToCart'])->name('products.cart.store');
 Route::get('/cart', [SiteController::class, 'cart'])->name('cart');
 Route::get('/checkout', [SiteController::class, 'checkout'])->name('checkout');
 Route::get('/checkout/review', [SiteController::class, 'checkoutReview'])->name('checkout.review');
-Route::get('/checkout/order-confirmation', [SiteController::class, 'checkoutOrderConfirmation'])->name('checkout.order-confirmation');
+Route::get('/checkout/order-confirmation/{orderNumber}', [SiteController::class, 'checkoutOrderConfirmation'])->name('checkout.order-confirmation');
+Route::get('/checkout/cancel/{orderNumber}', [SiteController::class, 'checkoutCancelled'])->name('checkout.cancel');
+Route::post('/stripe/webhook', StripeWebhookController::class)->name('stripe.webhook');
 Route::get('/cakes', [SiteController::class, 'cakes'])->name('cakes');
 Route::get('/custom-cakes', [SiteController::class, 'customCakes'])->name('custom-cakes');
 Route::get('/pastries', [SiteController::class, 'pastries'])->name('pastries.index');
@@ -29,6 +36,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
         Route::get('/', [AdminProductController::class, 'dashboard'])->name('dashboard');
+        Route::get('/enquiries', [AdminEnquiryController::class, 'index'])->name('enquiries.index');
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::resource('categories', AdminCategoryController::class)->except(['show']);
         Route::resource('products', AdminProductController::class)->except(['show']);
     });

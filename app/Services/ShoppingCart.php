@@ -3,45 +3,83 @@
 namespace App\Services;
 
 use App\Models\Product;
-use Illuminate\Support\Str;
 
 class ShoppingCart
 {
     private const SESSION_KEY = 'cart';
+    private const LINES_SESSION_KEY = 'cart_lines';
 
-    public function add(Product $product): void
+    public function add(Product $product, int $quantity = 1, array $options = []): void
     {
-        $items = $this->contents();
-        $items[$product->id] = ($items[$product->id] ?? 0) + 1;
+        if ($quantity < 1) {
+            return;
+        }
 
-        session()->put(self::SESSION_KEY, $items);
+        $lines = $this->lines();
+        $lineId = $this->lineId($product, $options);
+        $line = $lines[$lineId] ?? [
+            'product_id' => $product->id,
+            'quantity' => 0,
+            'options' => $options,
+        ];
+        $line['quantity'] += $quantity;
+        $lines[$lineId] = $line;
+
+        $this->saveLines($lines);
     }
 
     public function changeQuantity(int $productId, int $change): void
     {
-        $items = $this->contents();
+        $lines = $this->lines();
+        $lineId = $this->findLineId($lines, $productId);
 
-        if (! isset($items[$productId])) {
+        if ($lineId === null) {
             return;
         }
 
-        $quantity = $items[$productId] + $change;
+        $this->changeLineQuantity($lineId, $change);
+    }
 
-        if ($quantity < 1) {
-            unset($items[$productId]);
-        } else {
-            $items[$productId] = $quantity;
+    public function changeLineQuantity(string|int $lineId, int $change): void
+    {
+        $lines = $this->lines();
+        $lineId = (string) $lineId;
+
+        if (! isset($lines[$lineId])) {
+            return;
         }
 
-        session()->put(self::SESSION_KEY, $items);
+        $quantity = $lines[$lineId]['quantity'] + $change;
+
+        if ($quantity < 1) {
+            unset($lines[$lineId]);
+        } else {
+            $lines[$lineId]['quantity'] = $quantity;
+        }
+
+        $this->saveLines($lines);
     }
 
     public function remove(int $productId): void
     {
-        $items = $this->contents();
-        unset($items[$productId]);
+        $lines = collect($this->lines())
+            ->reject(fn (array $line) => (int) $line['product_id'] === $productId)
+            ->all();
 
-        session()->put(self::SESSION_KEY, $items);
+        $this->saveLines($lines);
+    }
+
+    public function removeLine(string|int $lineId): void
+    {
+        $lines = $this->lines();
+        unset($lines[(string) $lineId]);
+
+        $this->saveLines($lines);
+    }
+
+    public function clear(): void
+    {
+        session()->forget([self::SESSION_KEY, self::LINES_SESSION_KEY]);
     }
 
     public function count(): int
@@ -56,32 +94,38 @@ class ShoppingCart
 
     public function items(): array
     {
-        $quantities = $this->contents();
+        $lines = $this->lines();
 
-        if ($quantities === []) {
+        if ($lines === []) {
             return [];
         }
 
         $products = Product::active()
-            ->whereKey(array_keys($quantities))
+            ->whereKey(collect($lines)->pluck('product_id')->unique()->all())
             ->get()
             ->keyBy('id');
 
         $items = [];
 
-        foreach ($quantities as $productId => $quantity) {
+        foreach ($lines as $lineId => $line) {
+            $productId = (int) $line['product_id'];
             $product = $products->get($productId);
 
             if (! $product) {
                 continue;
             }
 
+            $options = $line['options'] ?? [];
+
             $items[] = [
                 'id' => $product->id,
+                'line_id' => (string) $lineId,
                 'name' => $product->name,
-                'size' => $product->category?->name ?? '',
-                'price' => $product->price,
-                'qty' => $quantity,
+                'description' => $product->description,
+                'size' => $options['size'] ?? $product->category?->name ?? '',
+                'options' => $options,
+                'price' => (int) ($options['unit_price'] ?? $product->price),
+                'qty' => $line['quantity'],
                 'image' => $product->image_url,
             ];
         }
@@ -91,8 +135,72 @@ class ShoppingCart
 
     private function contents(): array
     {
+        $quantities = [];
+
+        foreach ($this->lines() as $line) {
+            $productId = (int) $line['product_id'];
+            $quantities[$productId] = ($quantities[$productId] ?? 0) + $line['quantity'];
+        }
+
+        return $quantities;
+    }
+
+    private function lines(): array
+    {
+        $lines = session()->get(self::LINES_SESSION_KEY);
+
+        if (is_array($lines)) {
+            return $lines;
+        }
+
         return collect(session()->get(self::SESSION_KEY, []))
-            ->mapWithKeys(fn ($quantity, $productId) => [(int) $productId => max(1, (int) $quantity)])
+            ->mapWithKeys(fn ($quantity, $productId) => [(string) (int) $productId => [
+                'product_id' => (int) $productId,
+                'quantity' => max(1, (int) $quantity),
+                'options' => [],
+            ]])
             ->all();
+    }
+
+    private function saveLines(array $lines): void
+    {
+        session()->put(self::LINES_SESSION_KEY, $lines);
+        session()->put(self::SESSION_KEY, $this->aggregateQuantities($lines));
+    }
+
+    private function aggregateQuantities(array $lines): array
+    {
+        $quantities = [];
+
+        foreach ($lines as $line) {
+            $productId = (int) $line['product_id'];
+            $quantities[$productId] = ($quantities[$productId] ?? 0) + $line['quantity'];
+        }
+
+        return $quantities;
+    }
+
+    private function lineId(Product $product, array $options): string
+    {
+        if ($options === []) {
+            return (string) $product->id;
+        }
+
+        return $product->id . '-' . substr(hash('sha256', serialize($options)), 0, 16);
+    }
+
+    private function findLineId(array $lines, int $productId): string|int|null
+    {
+        if (array_key_exists((string) $productId, $lines)) {
+            return (string) $productId;
+        }
+
+        foreach ($lines as $lineId => $line) {
+            if ((int) $line['product_id'] === $productId) {
+                return $lineId;
+            }
+        }
+
+        return null;
     }
 }

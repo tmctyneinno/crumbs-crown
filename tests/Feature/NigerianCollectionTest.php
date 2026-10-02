@@ -45,7 +45,7 @@ class NigerianCollectionTest extends TestCase
             ->assertDontSee('Hidden Chin Chin')
             ->assertDontSee('Regular Croissant')
             ->call('addToCart', $product->id)
-            ->assertSee('Nigerian Meat Pie added successfully.')
+            ->assertDispatched('toast')
             ->assertSee('adjustCartQuantity('.$product->id.', -1)', false);
 
         $this->assertSame([$product->id => 1], session('cart'));

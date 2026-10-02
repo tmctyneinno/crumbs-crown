@@ -26,7 +26,7 @@ new class extends Component
         $cart->add($product);
         unset($this->cartQuantities);
         $this->dispatch('cart-updated')->to('cart-icon');
-        session()->flash('toast', $product->name . ' added successfully.');
+        $this->dispatch('toast', message: $product->name . ' added successfully.', type: 'success');
     }
 
     public function adjustCartQuantity(int $productId, int $change, ShoppingCart $cart): void
@@ -62,10 +62,6 @@ new class extends Component
 
 <div>
     <section>
-        @if (session('toast'))
-            <div role="status" aria-live="polite" class="mb-4 rounded-lg bg-[#4A2A16] px-4 py-3 text-sm font-medium text-white">{{ session('toast') }}</div>
-        @endif
-
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
 
             {{-- Product rail --}}
@@ -89,7 +85,13 @@ new class extends Component
                         </div>
 
                         <div class="flex flex-1 flex-col gap-1.5 p-3">
-                            <h3 class="text-sm font-semibold text-stone-800">{{ $pastry['name'] }}</h3>
+                            <h3 class="text-sm font-semibold text-stone-800">
+                                @if (! empty($pastry['detail_url']))
+                                    <a href="{{ $pastry['detail_url'] }}" wire:navigate class="hover:text-[#633e2c] hover:underline">{{ $pastry['name'] }}</a>
+                                @else
+                                    {{ $pastry['name'] }}
+                                @endif
+                            </h3>
                             <p class="text-xs leading-snug text-stone-500">{{ $pastry['desc'] }}</p>
 
                             <div class="flex items-center gap-1">

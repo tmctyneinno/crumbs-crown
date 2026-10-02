@@ -102,7 +102,7 @@ new class extends Component
 
         $cart->add($product);
         $this->dispatch('cart-updated')->to('cart-icon');
-        session()->flash('toast', $product->name . ' added successfully.');
+        $this->dispatch('toast', message: $product->name . ' added successfully.', type: 'success');
     }
 
     private function pastryQuery(): Builder
@@ -125,6 +125,7 @@ new class extends Component
             'rating' => $product->rating,
             'image' => $product->image_url,
             'category' => $product->category?->name ?? '',
+            'detail_url' => route('products.show', $product),
         ];
     }
 
@@ -135,19 +136,6 @@ new class extends Component
 <div>
     <div class="bg-white">
 
-        {{-- Toast --}}
-        @if (session('toast'))
-            <div
-                x-data="{ show: true }"
-                x-init="setTimeout(() => show = false, 3000)"
-                x-show="show"
-                x-transition
-                class="fixed top-5 right-5 z-50 rounded-xl bg-[#4A2A16] px-5 py-3 text-sm font-medium text-white shadow-lg"
-            >
-                {{ session('toast') }}
-            </div>
-        @endif
-  
         <div class="mx-auto max-w-5xl space-y-14 px-4 py-12 sm:px-6">
             <livewire:pastries.pastries-categories />
             <livewire:pastries.pastries-collection :pastries="$this->pastries" />

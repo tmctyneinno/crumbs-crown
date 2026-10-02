@@ -45,7 +45,7 @@ class FeaturedCakesTest extends TestCase
             ->assertDontSee('Hidden Cake')
             ->assertDontSee('Featured Pastry')
             ->call('addToCart', $cake->id)
-            ->assertSee('Featured Cake added successfully.')
+            ->assertDispatched('toast')
             ->assertSee('adjustCartQuantity('.$cake->id.', -1)', false);
 
         $this->assertSame([$cake->id => 1], session('cart'));

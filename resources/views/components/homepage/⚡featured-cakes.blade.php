@@ -39,7 +39,7 @@ new class extends Component
         $cart->add($product);
         unset($this->cartQuantities);
         $this->dispatch('cart-updated')->to('cart-icon');
-        session()->flash('message', $product->name . ' added successfully.');
+        $this->dispatch('toast', message: $product->name . ' added successfully.', type: 'success');
     }
 
     public function adjustCartQuantity(int $productId, int $change, ShoppingCart $cart): void
@@ -108,7 +108,9 @@ new class extends Component
                         {{-- Product Info --}}
                         <div class="p-4">
                             <h3 class="font-bold text-gray-900 text-lg mb-1">
+                                <a href="{{ route('products.show', $product) }}" wire:navigate class="hover:text-[#633e2c] hover:underline">
                                 {{ $product->name }}
+                                </a>
                             </h3>
                             <p class="text-sm text-gray-500 mb-3 line-clamp-2 leading-relaxed">
                                 {{ $product->description }}
@@ -157,21 +159,6 @@ new class extends Component
                     <p class="col-span-full py-8 text-center text-sm text-gray-500">Featured cakes will appear here when they are added to the shop.</p>
                 @endforelse
             </div>
-
-            {{-- Flash Message --}}
-            @if (session()->has('message'))
-                <div
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-init="setTimeout(() => show = false, 3000)"
-                    x-transition
-                    role="status"
-                    aria-live="polite"
-                    class="fixed top-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
-                >
-                    {{ session('message') }}
-                </div>
-            @endif
 
             {{-- Weekly Special Offer Banner --}}
             <div class="bg-brand-cream rounded-3xl overflow-hidden">
