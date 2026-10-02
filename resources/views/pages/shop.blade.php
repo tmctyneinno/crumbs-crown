@@ -5,7 +5,7 @@
         heading-line1="Shop Our"
         heading-line2="Sweet Treats"
         description="From everyday indulgence to life's biggest celebrations, we have something for everyone"
-    />
+    /> 
     <livewire:shop.product-catalog />
     <livewire:shop.promo-banners />
 

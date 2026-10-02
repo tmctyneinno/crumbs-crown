@@ -2,11 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Models\Product;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\WithPagination;
-
+ 
 new class extends Component
 {
     use WithPagination;
@@ -24,10 +26,10 @@ new class extends Component
 
     // ----- Filters: Price range -----
     #[Url]
-    public int $minPrice = 1000;
+    public int $minPrice = 0;
 
     #[Url]
-    public int $maxPrice = 100000;
+    public int $maxPrice = 1000000;
 
     // ----- Filters: Occasions -----
     #[Url]
@@ -45,57 +47,61 @@ new class extends Component
 
     protected $paginationTheme = 'tailwind';
 
-    /**
-     * Static filter option definitions with counts.
-     * In a real app these counts would be derived from the query itself.
-     */
     #[Computed]
     public function categoryOptions(): array
     {
-        return [
-            'cakes'            => ['label' => 'Cakes', 'count' => 66],
-            'cupcakes'         => ['label' => 'Cupcakes', 'count' => 66],
-            'pastries'         => ['label' => 'Pastries', 'count' => 66],
-            'desserts'         => ['label' => 'Desserts', 'count' => 66],
-            'chocolates'       => ['label' => 'Chocolates', 'count' => 66],
-            'small-chops'      => ['label' => 'Small Chops', 'count' => 66],
-            'chin-chin'        => ['label' => 'Chin Chin', 'count' => 66],
-            'corporate-events' => ['label' => 'Corporate Events', 'count' => 66],
-        ];
+        return Product::active()
+            ->selectRaw('category, COUNT(*) as count')
+            ->groupBy('category')
+            ->orderBy('category')
+            ->get()
+            ->mapWithKeys(fn (Product $product) => [$product->category => [
+                'label' => \Illuminate\Support\Str::headline($product->category),
+                'count' => $product->count,
+            ]])
+            ->all();
     }
 
     #[Computed]
     public function occasionOptions(): array
     {
-        return [
-            'birthday'         => ['label' => 'Birthday', 'count' => 66],
-            'wedding'          => ['label' => 'Wedding', 'count' => 66],
-            'anniversary'      => ['label' => 'Anniversary', 'count' => 66],
-            'corporate-events' => ['label' => 'Corporate Events', 'count' => 66],
-            'just-because'     => ['label' => 'Just Because', 'count' => 66],
-        ];
+        return Product::active()
+            ->whereNotNull('occasion')
+            ->selectRaw('occasion, COUNT(*) as count')
+            ->groupBy('occasion')
+            ->orderBy('occasion')
+            ->get()
+            ->mapWithKeys(fn (Product $product) => [$product->occasion => [
+                'label' => \Illuminate\Support\Str::headline($product->occasion),
+                'count' => $product->count,
+            ]])
+            ->all();
     }
 
     #[Computed]
     public function dietaryOptions(): array
     {
-        return [
-            'eggless'    => ['label' => 'Eggless', 'count' => 66],
-            'sugar-free' => ['label' => 'Sugar-free', 'count' => 66],
-            'gluten-free'=> ['label' => 'Gluten-free', 'count' => 66],
-            'low-sugar'  => ['label' => 'Low-sugar', 'count' => 66],
-        ];
+        return Product::active()
+            ->get(['dietary'])
+            ->flatMap(fn (Product $product) => $product->dietary ?? [])
+            ->countBy()
+            ->sortKeys()
+            ->map(fn (int $count, string $tag) => [
+                'label' => \Illuminate\Support\Str::headline($tag),
+                'count' => $count,
+            ])
+            ->all();
     }
 
     #[Computed]
     public function ratingOptions(): array
     {
-        return [
-            5 => 66,
-            4 => 66,
-            3 => 66,
-            2 => 66,
-        ];
+        return collect(range(5, 1))
+            ->mapWithKeys(fn (int $stars) => [$stars => Product::active()
+                ->where('rating', '>=', $stars)
+                ->where('rating', '<', $stars + 1)
+                ->count()])
+            ->all();
     }
 
     public function updatingSearch(): void
@@ -103,24 +109,32 @@ new class extends Component
         $this->resetPage();
     }
 
+    #[On('shop-category-toggled')]
     public function toggleCategory(string $key): void
     {
         $this->toggleInArray('categories', $key);
+        $this->syncFilterPanel();
     }
 
+    #[On('shop-occasion-toggled')]
     public function toggleOccasion(string $key): void
     {
         $this->toggleInArray('occasions', $key);
+        $this->syncFilterPanel();
     }
 
+    #[On('shop-dietary-toggled')]
     public function toggleDietary(string $key): void
     {
         $this->toggleInArray('dietary', $key);
+        $this->syncFilterPanel();
     }
 
+    #[On('shop-rating-toggled')]
     public function toggleRating(int $key): void
     {
         $this->toggleInArray('ratings', $key);
+        $this->syncFilterPanel();
     }
 
     protected function toggleInArray(string $property, string|int $value): void
@@ -140,9 +154,39 @@ new class extends Component
     public function clearFilters(): void
     {
         $this->reset(['categories', 'occasions', 'dietary', 'ratings', 'search']);
-        $this->minPrice = 1000;
-        $this->maxPrice = 100000;
+        $this->minPrice = 0;
+        $this->maxPrice = 1000000;
         $this->resetPage();
+        $this->dispatch('shop-filters-reset');
+        $this->syncFilterPanel();
+    }
+
+    #[On('shop-price-range')]
+    public function setPriceRange(int $min, int $max): void
+    {
+        $this->minPrice = $min;
+        $this->maxPrice = $max;
+        $this->resetPage();
+        $this->syncFilterPanel();
+    }
+
+    #[On('shop-filters-clear')]
+    public function clearFiltersFromPanel(): void
+    {
+        $this->clearFilters();
+    }
+
+    private function syncFilterPanel(): void
+    {
+        $this->dispatch(
+            'shop-filter-state',
+            categories: $this->categories,
+            minPrice: $this->minPrice,
+            maxPrice: $this->maxPrice,
+            occasions: $this->occasions,
+            dietary: $this->dietary,
+            ratings: $this->ratings,
+        );
     }
 
     public function applyFilters(): void
@@ -155,74 +199,57 @@ new class extends Component
 
     public function addToCart(int $productId): void
     {
-        // Replace with real cart logic (session, DB, or a Cart service).
-        $product = collect($this->allProducts())->firstWhere('id', $productId);
+        $product = Product::active()->find($productId);
+
+        if (! $product) {
+            return;
+        }
 
         $this->dispatch('cart-updated', productId: $productId)->to('cart-icon');
 
-        session()->flash('toast', ($product['name'] ?? 'Item') . ' added to cart.');
-    }
-
-    /**
-     * The full unfiltered catalog. Swap this for a real Eloquent model query,
-     * e.g. Product::query()->with('images')->
-     */
-    protected function allProducts(): array
-    {
-        return [
-            ['id' => 1,  'name' => 'The Birthday Classic',       'desc' => 'A timeless celebration cake made for candles, wishes and happy moments.', 'price' => 35000, 'rating' => 4.5, 'category' => 'cakes',      'occasion' => 'birthday',    'image' => 'birthday-classic.svg'],
-            ['id' => 2,  'name' => 'Glazed Ring Donuts',          'desc' => 'Soft, pillowy donuts finished with a light golden glaze.',                'price' => 35000, 'rating' => 4.5, 'category' => 'pastries',   'occasion' => 'just-because','image' => 'chocolate-fudge-cake.svg'],
-            ['id' => 3,  'name' => 'Berry Drip Delight',          'desc' => 'Vanilla sponge with a chocolate drip and fresh strawberries on top.',      'price' => 35000, 'rating' => 4.5, 'category' => 'cakes',      'occasion' => 'birthday',    'image' => 'fruit-cake.svg'],
-            ['id' => 4,  'name' => 'Crunchy Chin Chin Bowl',      'desc' => 'Golden, crunchy chin chin bites, perfect for sharing at parties.',        'price' => 35000, 'rating' => 4.5, 'category' => 'chin-chin',  'occasion' => 'corporate-events', 'image' => 'red-velvet-cake.svg'],
-            ['id' => 5,  'name' => 'Beef Pastry Pocket',          'desc' => 'Flaky pastry filled with seasoned minced beef and vegetables.',           'price' => 35000, 'rating' => 4.5, 'category' => 'small-chops','occasion' => 'corporate-events', 'image' => 'sparkler-cake.svg'],
-            ['id' => 6,  'name' => 'Classic Red Velvet',          'desc' => 'Layers of red velvet sponge with smooth cream cheese frosting.',          'price' => 35000, 'rating' => 4.5, 'category' => 'cakes',      'occasion' => 'anniversary', 'image' => 'strawberry-cake.svg'],
-            ['id' => 7,  'name' => 'Chocolate Dream Drip',        'desc' => 'Rich chocolate sponge finished with a dark chocolate ganache drip.',      'price' => 35000, 'rating' => 4.5, 'category' => 'cakes',      'occasion' => 'birthday',    'image' => 'strawberry-cake2.svg'],
-            ['id' => 8,  'name' => 'Paw Patrol Party Cake',       'desc' => 'A fun themed cake with a hand-piped topper, made for little ones.',       'price' => 35000, 'rating' => 4.5, 'category' => 'cakes',      'occasion' => 'birthday',    'image' => 'vanilla-cake.svg'],
-            ['id' => 9,  'name' => 'Meat Pie Pocket',             'desc' => 'A warm, flaky pastry packed with peppered meat and potatoes.',            'price' => 35000, 'rating' => 4.5, 'category' => 'small-chops','occasion' => 'corporate-events', 'image' => 'wedding-cake.svg'],
-        ];
+        session()->flash('toast', $product->name . ' added to cart.');
     }
 
     #[Computed]
     public function products()
     {
-        $items = collect($this->allProducts())
-            ->when($this->search !== '', function ($collection) {
-                $term = mb_strtolower($this->search);
-                return $collection->filter(
-                    fn ($product) => str_contains(mb_strtolower($product['name']), $term)
-                        || str_contains(mb_strtolower($product['desc']), $term)
-                );
-            })
-            ->when(! empty($this->categories), fn ($collection) => $collection->filter(
-                fn ($product) => in_array($product['category'], $this->categories, true)
-            ))
-            ->when(! empty($this->occasions), fn ($collection) => $collection->filter(
-                fn ($product) => in_array($product['occasion'], $this->occasions, true)
-            ))
-            ->when(! empty($this->ratings), fn ($collection) => $collection->filter(
-                fn ($product) => in_array((int) floor($product['rating']), $this->ratings, true)
-            ))
-            ->filter(fn ($product) => $product['price'] >= $this->minPrice && $product['price'] <= $this->maxPrice)
-            ->values();
+        $query = Product::active()
+            ->when($this->search !== '', fn ($query) => $query->where(function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('description', 'like', '%' . $this->search . '%');
+            }))
+            ->when($this->categories, fn ($query) => $query->whereIn('category', $this->categories))
+            ->when($this->occasions, fn ($query) => $query->whereIn('occasion', $this->occasions))
+            ->whereBetween('price', [$this->minPrice, $this->maxPrice]);
 
-        $items = match ($this->sort) {
-            'price_low'  => $items->sortBy('price')->values(),
-            'price_high' => $items->sortByDesc('price')->values(),
-            'rating'     => $items->sortByDesc('rating')->values(),
-            'newest'     => $items->sortByDesc('id')->values(),
-            default      => $items,
+        if ($this->dietary) {
+            $query->where(function ($query) {
+                foreach ($this->dietary as $tag) {
+                    $query->orWhereJsonContains('dietary', $tag);
+                }
+            });
+        }
+
+        if ($this->ratings) {
+            $query->where(function ($query) {
+                foreach ($this->ratings as $rating) {
+                    $query->orWhere(function ($query) use ($rating) {
+                        $query->where('rating', '>=', $rating)
+                            ->where('rating', '<', $rating + 1);
+                    });
+                }
+            });
+        }
+
+        match ($this->sort) {
+            'price_low' => $query->orderBy('price'),
+            'price_high' => $query->orderByDesc('price'),
+            'rating' => $query->orderByDesc('rating'),
+            'newest' => $query->orderByDesc('created_at'),
+            default => $query->orderByDesc('is_featured')->orderByDesc('created_at'),
         };
 
-        $page = $this->getPage();
-        $slice = $items->slice(($page - 1) * $this->perPage, $this->perPage)->values();
-
-        return new \Illuminate\Pagination\LengthAwarePaginator(
-            $slice,
-            $items->count(),
-            $this->perPage,
-            $page,
-            ['path' => request()->url(), 'pageName' => 'page']
-        );
+        return $query->paginate($this->perPage);
     }
 
    
@@ -245,7 +272,7 @@ new class extends Component
         </div>
     @endif
 
-    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-6">
         <div class="flex gap-8">
 
             {{-- ============ SIDEBAR (desktop) ============ --}}
@@ -335,7 +362,7 @@ new class extends Component
                             <article class="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md">
                                 <div class="relative aspect-square w-full overflow-hidden bg-stone-100">
                                     <img
-                                        src="{{ asset('images/cakes/' . $product['image']) }}"
+                                        src="{{ $product->image_url }}"
                                         alt="{{ $product['name'] }}"
                                         loading="lazy"
                                         class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"

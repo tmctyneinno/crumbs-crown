@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,3 +20,14 @@ Route::get('/wedding', [SiteController::class, 'wedding'])->name('wedding');
 Route::get('/about', [SiteController::class, 'about'])->name('about');
 Route::get('/connect', [SiteController::class, 'connect'])->name('connect');
 Route::get('/contact', [SiteController::class, 'connect'])->name('contact');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AdminAuthController::class, 'create'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'store'])->middleware('throttle:6,1')->name('login.store');
+
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
+        Route::get('/', [AdminProductController::class, 'dashboard'])->name('dashboard');
+        Route::resource('products', AdminProductController::class)->except(['show']);
+    });
+});

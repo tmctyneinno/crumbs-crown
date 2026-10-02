@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center h-20">
             
             <!-- Logo -->
-            <div class="flex-shrink-0 flex items-center">
+            <div class="flex-shrink-0 flex items-center"> 
                 <a href="{{ route('home') }}" wire:navigate class="flex flex-col">
                     <span class="font-playfair text-2xl font-bold text-white tracking-wide">CRUMBS & CROWN</span>
                     <span class="text-[10px] text-amber-200/80 tracking-[0.2em] uppercase">A The Morgans Company</span>

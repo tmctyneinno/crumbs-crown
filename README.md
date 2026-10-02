@@ -60,4 +60,22 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 npm run dev:all
 
-- 
+## Shop administration
+
+Run the database migrations and seed the starter catalog:
+
+```sh
+php artisan migrate --seed
+```
+
+Create an administrator account with the interactive prompt. The password must be at least 12 characters:
+
+```sh
+php artisan admin:create
+```
+
+Uploaded product images use Laravel's public storage disk. Create the storage link once, then sign in at `/admin/login`:
+
+```sh
+php artisan storage:link
+```

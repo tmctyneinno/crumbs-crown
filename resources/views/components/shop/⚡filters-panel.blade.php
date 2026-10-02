@@ -1,74 +1,163 @@
 <?php
 
+use App\Models\Product;
+use Illuminate\Support\Str;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
 {
     public array $categories = [];
-    public int $minPrice = 1000;
-    public int $maxPrice = 100000;
+    public int $minPrice = 0;
+    public int $maxPrice = 1000000;
     public array $occasions = [];
     public array $dietary = [];
     public array $ratings = [];
 
-    public array $categoryOptions = [
-        'cakes' => ['label' => 'Cakes', 'count' => 66],
-        'cupcakes' => ['label' => 'Cupcakes', 'count' => 66],
-        'pastries' => ['label' => 'Pastries', 'count' => 66],
-        'desserts' => ['label' => 'Desserts', 'count' => 66],
-        'chocolates' => ['label' => 'Chocolates', 'count' => 66],
-        'small-chops' => ['label' => 'Small Chops', 'count' => 66],
-        'chin-chin' => ['label' => 'Chin Chin', 'count' => 66],
-        'corporate-events' => ['label' => 'Corporate Events', 'count' => 66],
-    ];
+    #[Computed]
+    public function categoryOptions(): array
+    {
+        return Product::active()
+            ->selectRaw('category, COUNT(*) as count')
+            ->groupBy('category')
+            ->orderBy('category')
+            ->get()
+            ->mapWithKeys(fn (Product $product) => [$product->category => [
+                'label' => Str::headline($product->category),
+                'count' => $product->count,
+            ]])
+            ->all();
+    }
 
-    public array $occasionOptions = [
-        'birthday' => ['label' => 'Birthday', 'count' => 66],
-        'wedding' => ['label' => 'Wedding', 'count' => 66],
-        'anniversary' => ['label' => 'Anniversary', 'count' => 66],
-        'corporate-events' => ['label' => 'Corporate Events', 'count' => 66],
-        'just-because' => ['label' => 'Just Because', 'count' => 66],
-    ];
+    #[Computed]
+    public function occasionOptions(): array
+    {
+        return Product::active()
+            ->whereNotNull('occasion')
+            ->selectRaw('occasion, COUNT(*) as count')
+            ->groupBy('occasion')
+            ->orderBy('occasion')
+            ->get()
+            ->mapWithKeys(fn (Product $product) => [$product->occasion => [
+                'label' => Str::headline($product->occasion),
+                'count' => $product->count,
+            ]])
+            ->all();
+    }
 
-    public array $dietaryOptions = [
-        'eggless' => ['label' => 'Eggless', 'count' => 66],
-        'sugar-free' => ['label' => 'Sugar-free', 'count' => 66],
-        'gluten-free' => ['label' => 'Gluten-free', 'count' => 66],
-        'low-sugar' => ['label' => 'Low-sugar', 'count' => 66],
-    ];
+    #[Computed]
+    public function dietaryOptions(): array
+    {
+        return Product::active()
+            ->get(['dietary'])
+            ->flatMap(fn (Product $product) => $product->dietary ?? [])
+            ->countBy()
+            ->sortKeys()
+            ->map(fn (int $count, string $tag) => [
+                'label' => Str::headline($tag),
+                'count' => $count,
+            ])
+            ->all();
+    }
 
-    public array $ratingOptions = [5 => 66, 4 => 66, 3 => 66, 2 => 66, 1 => 66];
+    #[Computed]
+    public function ratingOptions(): array
+    {
+        return collect(range(5, 1))
+            ->mapWithKeys(fn (int $stars) => [$stars => Product::active()
+                ->where('rating', '>=', $stars)
+                ->where('rating', '<', $stars + 1)
+                ->count()])
+            ->all();
+    }
+
+    #[Computed]
+    public function allProductsCount(): int
+    {
+        return Product::active()->count();
+    }
+
+    #[Computed]
+    public function priceBands(): array
+    {
+        return collect([
+            ['label' => 'Under ₦5,000', 'min' => 0, 'max' => 5000],
+            ['label' => '₦5,000 - ₦20,000', 'min' => 5000, 'max' => 20000],
+            ['label' => '₦20,000 - ₦50,000', 'min' => 20000, 'max' => 50000],
+            ['label' => '₦50,000 - ₦100,000', 'min' => 50000, 'max' => 100000],
+            ['label' => '₦100,000+', 'min' => 100000, 'max' => 10000000],
+        ])->map(fn (array $band) => $band + [
+            'count' => Product::active()->whereBetween('price', [$band['min'], $band['max']])->count(),
+        ])->all();
+    }
 
     public function toggleCategory(string $key): void
     {
         $this->toggle('categories', $key);
+        $this->dispatch('shop-category-toggled', key: $key);
     }
 
     public function toggleOccasion(string $key): void
     {
         $this->toggle('occasions', $key);
+        $this->dispatch('shop-occasion-toggled', key: $key);
     }
 
     public function toggleDietary(string $key): void
     {
         $this->toggle('dietary', $key);
+        $this->dispatch('shop-dietary-toggled', key: $key);
     }
 
     public function toggleRating(int $key): void
     {
         $this->toggle('ratings', $key);
+        $this->dispatch('shop-rating-toggled', key: $key);
     }
 
     public function clearFilters(): void
     {
         $this->reset(['categories', 'minPrice', 'maxPrice', 'occasions', 'dietary', 'ratings']);
-        $this->minPrice = 1000;
-        $this->maxPrice = 100000;
+        $this->minPrice = 0;
+        $this->maxPrice = 1000000;
+        $this->dispatch('shop-filters-clear');
     }
 
     public function applyFilters(): void
     {
         $this->dispatch('filters-applied');
+    }
+
+    public function setPriceRange(int $min, int $max): void
+    {
+        $this->minPrice = $min;
+        $this->maxPrice = $max;
+        $this->dispatch('shop-price-range', min: $min, max: $max);
+    }
+
+    public function updatedMaxPrice(): void
+    {
+        $this->dispatch('shop-price-range', min: $this->minPrice, max: $this->maxPrice);
+    }
+
+    #[On('shop-filter-state')]
+    public function syncFromCatalog(array $categories, int $minPrice, int $maxPrice, array $occasions, array $dietary, array $ratings): void
+    {
+        $this->categories = $categories;
+        $this->minPrice = $minPrice;
+        $this->maxPrice = $maxPrice;
+        $this->occasions = $occasions;
+        $this->dietary = $dietary;
+        $this->ratings = $ratings;
+    }
+
+    #[On('shop-filters-reset')]
+    public function resetFromCatalog(): void
+    {
+        $this->reset(['categories', 'occasions', 'dietary', 'ratings']);
+        $this->minPrice = 0;
+        $this->maxPrice = 1000000;
     }
 
     private function toggle(string $property, string|int $value): void
@@ -113,7 +202,7 @@ new class extends Component
                     <input type="checkbox" checked disabled class="h-4 w-4 rounded border-stone-300 text-[#4A2A16] focus:ring-[#4A2A16]">
                     All Products
                 </span>
-                <span class="text-stone-400">(256)</span>
+                <span class="text-stone-400">({{ $this->allProductsCount }})</span>
             </label>
 
             @foreach ($this->categoryOptions as $key => $opt)
@@ -145,8 +234,8 @@ new class extends Component
         <div x-show="open" x-collapse class="mt-4 space-y-4">
             <input
                 type="range"
-                min="1000"
-                max="100000"
+                min="0"
+                max="1000000"
                 step="1000"
                 wire:model.live.debounce.300ms="maxPrice"
                 class="w-full accent-[#4A2A16]"
@@ -157,23 +246,17 @@ new class extends Component
             </div>
 
             <div class="space-y-2.5 pt-1">
-                @foreach ([
-                    ['label' => 'Under ₦5,000', 'min' => 0, 'max' => 5000],
-                    ['label' => '₦5,000 - ₦20,000', 'min' => 5000, 'max' => 20000],
-                    ['label' => '₦20,000 - ₦50,000', 'min' => 20000, 'max' => 50000],
-                    ['label' => '₦50,000 - ₦100,000', 'min' => 50000, 'max' => 100000],
-                    ['label' => '₦100,000+', 'min' => 100000, 'max' => 1000000],
-                ] as $band)
+                @foreach ($this->priceBands as $band)
                     <label class="flex cursor-pointer items-center justify-between text-sm text-stone-700">
                         <span class="flex items-center gap-2">
                             <input
                                 type="checkbox"
-                                wire:click="$set('minPrice', {{ $band['min'] }}); $set('maxPrice', {{ $band['max'] }})"
+                                wire:click="setPriceRange({{ $band['min'] }}, {{ $band['max'] }})"
                                 class="h-4 w-4 rounded border-stone-300 text-[#4A2A16] focus:ring-[#4A2A16]"
                             >
                             {{ $band['label'] }}
                         </span>
-                        <span class="text-stone-400">(66)</span>
+                        <span class="text-stone-400">({{ $band['count'] }})</span>
                     </label>
                 @endforeach
             </div>
