@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Mail\CustomerEnquiryMail;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 new class extends Component
@@ -33,10 +35,10 @@ new class extends Component
             'title'       => 'General Enquiries',
             'description' => 'For general questions about Crumbs & Crown, our products and services',
             'details'     => [
-                ['label' => 'Email Address', 'value' => 'hello@crumbsandcrown.com'],
+                ['label' => 'Email Address', 'value' => 'enquiry@crumbsandcrown.com'],
             ],
             'cta'         => 'Send An Email',
-            'href'        => 'mailto:hello@crumbsandcrown.com',
+            'href'        => 'mailto:enquiry@crumbsandcrown.com',
         ],
         [
             'icon'        => 'gift',
@@ -117,7 +119,15 @@ new class extends Component
     {
         $this->validate();
 
-        // TODO: dispatch a Mail/Notification here.
+        $payload = [
+            'fullName' => trim($this->fullName),
+            'email' => trim($this->email),
+            'phone' => trim((string) $this->phone),
+            'enquiryType' => $this->enquiryType,
+            'message' => trim($this->message),
+        ];
+
+        Mail::to('enquiry@crumbsandcrown.com')->send(new CustomerEnquiryMail($payload));
 
         $this->reset(['fullName', 'email', 'phone', 'enquiryType', 'message']);
         $this->dispatch('message-sent');
@@ -301,7 +311,7 @@ new class extends Component
 <script>
     document.addEventListener('livewire:init', () => {
         Livewire.on('message-sent', () => {
-            alert('Thanks — your message has been sent!');
+            alert('Thanks — your message has been sent to our team. We will be in touch soon.');
         });
     });
 </script>
