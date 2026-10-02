@@ -1,21 +1,71 @@
 <?php
 
+use App\Models\Product;
+use App\Services\ShoppingCart;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component
 {
     public array $chunchy = [];
 
-    public function addToCart(int $productId): void
+    #[Computed]
+    public function cartQuantities(): array
     {
-        session()->flash('toast', 'Added to cart.');
-        $this->dispatch('cart-updated', productId: $productId)->to('cart-icon');
+        return app(ShoppingCart::class)->quantities();
+    }
+
+    public function addToCart(int $productId, ShoppingCart $cart): void
+    {
+        $product = $this->findChinChin($productId);
+
+        if (! $product) {
+            return;
+        }
+
+        $cart->add($product);
+        unset($this->cartQuantities);
+        $this->dispatch('cart-updated')->to('cart-icon');
+        session()->flash('toast', $product->name . ' added successfully.');
+    }
+
+    public function adjustCartQuantity(int $productId, int $change, ShoppingCart $cart): void
+    {
+        if (! in_array($change, [-1, 1], true)) {
+            return;
+        }
+
+        $product = $this->findChinChin($productId);
+
+        if (! $product) {
+            return;
+        }
+
+        if ($change === 1) {
+            $cart->add($product);
+        } else {
+            $cart->changeQuantity($productId, $change);
+        }
+
+        unset($this->cartQuantities);
+        $this->dispatch('cart-updated')->to('cart-icon');
+    }
+
+    private function findChinChin(int $productId): ?Product
+    {
+        return Product::active()
+            ->whereHas('category', fn ($query) => $query->where('slug', 'chin-chin'))
+            ->find($productId);
     }
 };
 ?>
 
 <div>
     <section>
+        @if (session('toast'))
+            <div role="status" aria-live="polite" class="mb-4 rounded-lg bg-[#4A2A16] px-4 py-3 text-sm font-medium text-white">{{ session('toast') }}</div>
+        @endif
+
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
 {{-- Intro column --}}
             <div class="w-full shrink-0 lg:w-[220px]">
@@ -50,7 +100,7 @@ new class extends Component
                     <article class="flex w-[190px] shrink-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
                         <div class="relative aspect-square w-full overflow-hidden bg-stone-100">
                             <img 
-                                src="{{ asset('images/pastries/' . $pastry['image']) }}"
+                                src="{{ $pastry['image'] }}"
                                 alt="{{ $pastry['name'] }}"
                                 loading="lazy"
                                 class="h-full w-full object-cover"
@@ -60,7 +110,7 @@ new class extends Component
                                 <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h1l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2 5h13" />
                                 </svg>
-                                Free Delivery until 10/10/26
+                                {{ $pastry['category'] }}
                             </div>
                         </div>
 
@@ -79,16 +129,24 @@ new class extends Component
                                 <span class="text-xs font-medium text-stone-600">{{ number_format($pastry['rating'], 1) }}</span>
                             </div>
 
-                            <div class="mt-auto flex items-center justify-between pt-1.5">
-                                <button
-                                    wire:click="addToCart({{ $pastry['id'] }})"
-                                    wire:loading.attr="disabled"
-                                    wire:target="addToCart({{ $pastry['id'] }})"
-                                    class="rounded-full bg-[#4A2A16] px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#3A2011] disabled:opacity-60"
-                                >
-                                    <span wire:loading.remove wire:target="addToCart({{ $pastry['id'] }})">Add to Cart</span>
-                                    <span wire:loading wire:target="addToCart({{ $pastry['id'] }})">Adding&hellip;</span>
-                                </button>
+                            <div class="mt-auto flex items-center justify-between gap-1 pt-1.5">
+                                @if (($this->cartQuantities[$pastry['id']] ?? 0) > 0)
+                                    <div class="inline-flex shrink-0 items-center overflow-hidden rounded-full border border-[#4A2A16] text-[#4A2A16]">
+                                        <button type="button" wire:click="adjustCartQuantity({{ $pastry['id'] }}, -1)" wire:loading.attr="disabled" aria-label="Remove one {{ $pastry['name'] }}" class="flex h-8 w-8 items-center justify-center text-base hover:bg-[#4A2A16]/10 disabled:opacity-50">&minus;</button>
+                                        <span class="min-w-7 text-center text-xs font-semibold" aria-live="polite">{{ $this->cartQuantities[$pastry['id']] }}</span>
+                                        <button type="button" wire:click="adjustCartQuantity({{ $pastry['id'] }}, 1)" wire:loading.attr="disabled" aria-label="Add one {{ $pastry['name'] }}" class="flex h-8 w-8 items-center justify-center text-base hover:bg-[#4A2A16]/10 disabled:opacity-50">+</button>
+                                    </div>
+                                @else
+                                    <button
+                                        wire:click="addToCart({{ $pastry['id'] }})"
+                                        wire:loading.attr="disabled"
+                                        wire:target="addToCart({{ $pastry['id'] }})"
+                                        class="rounded-full bg-[#4A2A16] px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#3A2011] disabled:opacity-60"
+                                    >
+                                        <span wire:loading.remove wire:target="addToCart({{ $pastry['id'] }})">Add to Cart</span>
+                                        <span wire:loading wire:target="addToCart({{ $pastry['id'] }})">Adding&hellip;</span>
+                                    </button>
+                                @endif
                                 <span class="text-sm font-bold text-stone-900">&#8358;{{ number_format($pastry['price']) }}</span>
                             </div>
                         </div>

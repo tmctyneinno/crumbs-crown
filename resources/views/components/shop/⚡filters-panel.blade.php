@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
@@ -18,14 +19,15 @@ new class extends Component
     #[Computed]
     public function categoryOptions(): array
     {
-        return Product::active()
-            ->selectRaw('category, COUNT(*) as count')
-            ->groupBy('category')
-            ->orderBy('category')
+        return Category::active()
+            ->whereHas('products', fn ($query) => $query->active())
+            ->withCount(['products as count' => fn ($query) => $query->active()])
+            ->orderBy('sort_order')
+            ->orderBy('name')
             ->get()
-            ->mapWithKeys(fn (Product $product) => [$product->category => [
-                'label' => Str::headline($product->category),
-                'count' => $product->count,
+            ->mapWithKeys(fn (Category $category) => [$category->slug => [
+                'label' => $category->name,
+                'count' => $category->count,
             ]])
             ->all();
     }

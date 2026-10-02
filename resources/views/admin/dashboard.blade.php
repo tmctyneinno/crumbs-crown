@@ -33,7 +33,7 @@
                     <img src="{{ $product->image_url }}" alt="" class="h-12 w-12 rounded object-cover">
                     <span class="min-w-0 flex-1">
                         <span class="block truncate text-sm font-medium text-stone-900">{{ $product->name }}</span>
-                        <span class="mt-1 block text-xs text-stone-500">{{ \Illuminate\Support\Str::headline($product->category) }}</span>
+                        <span class="mt-1 block text-xs text-stone-500">{{ $product->category?->name ?? 'Uncategorized' }}</span>
                     </span>
                     <span class="text-sm font-semibold text-stone-800">&#8358;{{ number_format($product->price) }}</span>
                     <span class="text-xs {{ $product->is_active ? 'text-emerald-700' : 'text-stone-400' }}">{{ $product->is_active ? 'Active' : 'Hidden' }}</span>

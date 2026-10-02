@@ -2,44 +2,64 @@
 
 namespace App\Livewire;
 
+use App\Models\Product;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 
 new class extends Component
 {
-    /**
-     * "Find Your Perfect Cake" — occasion categories.
-     * Swap for Category::query()->withCount('products')->get() once
-     * backed by the database.
-     */
     #[Computed]
     public function categories(): array
     {
-        return [
-            ['name' => 'Birthday Cakes',    'slug' => 'birthday',    'image' => 'category-birthday.svg'],
-            ['name' => 'Wedding Cakes',      'slug' => 'wedding',     'image' => 'category-wedding.svg'],
-            ['name' => 'Anniversary Cakes',  'slug' => 'anniversary', 'image' => 'category-anniversary.svg'],
-            ['name' => 'Graduation Cakes',   'slug' => 'graduation',  'image' => 'category-graduation.svg'],
-            ['name' => 'Baby Shower Cakes',  'slug' => 'baby-shower', 'image' => 'category-baby-shower.svg'],
-            ['name' => 'Cupcake Cakes',      'slug' => 'cupcake',     'image' => 'category-cupcake.svg'],
-            ['name' => 'Corporate Cakes',    'slug' => 'corporate',   'image' => 'category-corporate.svg'],
+        $categories = [
+            ['name' => 'Birthday Cakes', 'slug' => 'birthday', 'filter' => 'occasions', 'image' => 'category-birthday.svg'],
+            ['name' => 'Wedding Cakes', 'slug' => 'wedding', 'filter' => 'occasions', 'image' => 'category-wedding.svg'],
+            ['name' => 'Anniversary Cakes', 'slug' => 'anniversary', 'filter' => 'occasions', 'image' => 'category-anniversary.svg'],
+            ['name' => 'Graduation Cakes', 'slug' => 'graduation', 'filter' => 'occasions', 'image' => 'category-graduation.svg'],
+            ['name' => 'Baby Shower Cakes', 'slug' => 'baby-shower', 'filter' => 'occasions', 'image' => 'category-baby-shower.svg'],
+            ['name' => 'Cupcake Cakes', 'slug' => 'cupcakes', 'filter' => 'categories', 'image' => 'category-cupcake.svg'],
+            ['name' => 'Corporate Cakes', 'slug' => 'corporate-events', 'filter' => 'occasions', 'image' => 'category-corporate.svg'],
         ];
+
+        $knownSlugs = array_column($categories, 'slug');
+        $otherOccasions = Product::active()
+            ->whereHas('category', fn ($query) => $query->where('slug', 'cakes'))
+            ->whereNotNull('occasion')
+            ->distinct()
+            ->orderBy('occasion')
+            ->pluck('occasion')
+            ->reject(fn (string $occasion) => in_array($occasion, $knownSlugs, true))
+            ->map(fn (string $occasion) => [
+                'name' => \Illuminate\Support\Str::headline($occasion) . ' Cakes',
+                'slug' => $occasion,
+                'filter' => 'occasions',
+                'image' => 'category-birthday.svg',
+            ])
+            ->all();
+
+        return [...$categories, ...$otherOccasions];
     }
 
-    /**
-     * "Our Cake Collection" — featured products shown in the horizontal rail.
-     * Swap for Product::featured()->take(8)->get() once backed by the database.
-     */
     #[Computed]
     public function cakes(): array
     {
-        return [
-            ['id' => 1, 'name' => 'The Birthday Classic', 'desc' => 'A timeless celebration cake made for candles, wishes and happy moments.', 'price' => 35000, 'rating' => 4.5, 'image' => 'category-baby-shower.svg'],
-            ['id' => 2, 'name' => 'Chocolate Fudge Cake', 'desc' => 'Rich chocolate layers finished with a smooth, glossy ganache.', 'price' => 35000, 'rating' => 4.5, 'image' => 'strawberry-cake.svg'],
-            ['id' => 3, 'name' => 'Berry Drip Delight', 'desc' => 'Vanilla sponge with a chocolate drip and fresh strawberries on top.', 'price' => 35000, 'rating' => 4.5, 'image' => 'category-corporate.svg'],
-            ['id' => 4, 'name' => 'Fresh Fruit Cake', 'desc' => 'A light celebration cake finished with seasonal fruit.', 'price' => 35000, 'rating' => 4.5, 'image' => 'category-wedding.svg'],
-            ['id' => 5, 'name' => 'Red Velvet Classic', 'desc' => 'Soft red velvet sponge layered with cream cheese frosting.', 'price' => 35000, 'rating' => 4.5, 'image' => 'red-velvet-cake.svg'],
-        ];
+        return Product::active()
+            ->whereHas('category', fn ($query) => $query->where('slug', 'cakes'))
+            ->with('category')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('rating')
+            ->latest()
+            ->take(8)
+            ->get()
+            ->map(fn (Product $product) => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'desc' => $product->description,
+                'price' => $product->price,
+                'rating' => $product->rating,
+                'image' => $product->image_url,
+            ])
+            ->all();
     }
 
     /**
@@ -86,13 +106,6 @@ new class extends Component
             ['label' => 'Select Shape & Size', 'icon' => 'gift'],
             ['label' => 'Share your Inspiration', 'icon' => 'bag'],
         ];
-    }
-
-    public function addToCart(int $productId): void
-    {
-        // Replace with real cart logic (session, DB, or a Cart service).
-        session()->flash('toast', 'Added to cart.');
-        $this->dispatch('cart-updated', productId: $productId)->to('cart-icon');
     }
 
 }

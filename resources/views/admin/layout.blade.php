@@ -15,6 +15,7 @@
             </a>
             <nav class="mt-8 flex gap-2 overflow-x-auto text-sm lg:flex-col">
                 <a href="{{ route('admin.dashboard') }}" class="shrink-0 rounded-md px-3 py-2.5 {{ request()->routeIs('admin.dashboard') ? 'bg-[#5c4035] text-white' : 'text-stone-300 hover:bg-[#463128]' }}">Overview</a>
+                <a href="{{ route('admin.categories.index') }}" class="shrink-0 rounded-md px-3 py-2.5 {{ request()->routeIs('admin.categories.*') ? 'bg-[#5c4035] text-white' : 'text-stone-300 hover:bg-[#463128]' }}">Categories</a>
                 <a href="{{ route('admin.products.index') }}" class="shrink-0 rounded-md px-3 py-2.5 {{ request()->routeIs('admin.products.*') ? 'bg-[#5c4035] text-white' : 'text-stone-300 hover:bg-[#463128]' }}">Products</a>
                 <a href="{{ route('shop') }}" class="shrink-0 rounded-md px-3 py-2.5 text-stone-300 hover:bg-[#463128]">View shop</a>
             </nav>

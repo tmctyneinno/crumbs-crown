@@ -79,3 +79,14 @@ Uploaded product images use Laravel's public storage disk. Create the storage li
 ```sh
 php artisan storage:link
 ```
+
+Manage storefront categories, images, visibility, and display order at `/admin/categories`. Product forms use these categories, and the shop filters and homepage category cards read from the same records.
+
+php artisan admin:create
+
+Admin Credential
+
+Crumbs & Crown Admin
+admin@crumbscrown.test
+CrumbsCrown!2026
+

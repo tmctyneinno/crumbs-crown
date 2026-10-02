@@ -37,7 +37,7 @@
                                     </span>
                                 </div>
                             </td>
-                            <td class="px-5 py-3 text-stone-600">{{ \Illuminate\Support\Str::headline($product->category) }}</td>
+                            <td class="px-5 py-3 text-stone-600">{{ $product->category?->name ?? 'Uncategorized' }}</td>
                             <td class="px-5 py-3 font-medium text-stone-800">&#8358;{{ number_format($product->price) }}</td>
                             <td class="px-5 py-3">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $product->is_active ? 'bg-emerald-50 text-emerald-800' : 'bg-stone-100 text-stone-600' }}">{{ $product->is_active ? 'Active' : 'Hidden' }}</span>

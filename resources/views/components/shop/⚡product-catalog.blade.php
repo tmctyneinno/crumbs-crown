@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Models\Category;
 use App\Models\Product;
+use App\Services\ShoppingCart;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -50,14 +52,15 @@ new class extends Component
     #[Computed]
     public function categoryOptions(): array
     {
-        return Product::active()
-            ->selectRaw('category, COUNT(*) as count')
-            ->groupBy('category')
-            ->orderBy('category')
+        return Category::active()
+            ->whereHas('products', fn ($query) => $query->active())
+            ->withCount(['products as count' => fn ($query) => $query->active()])
+            ->orderBy('sort_order')
+            ->orderBy('name')
             ->get()
-            ->mapWithKeys(fn (Product $product) => [$product->category => [
-                'label' => \Illuminate\Support\Str::headline($product->category),
-                'count' => $product->count,
+            ->mapWithKeys(fn (Category $category) => [$category->slug => [
+                'label' => $category->name,
+                'count' => $category->count,
             ]])
             ->all();
     }
@@ -197,7 +200,7 @@ new class extends Component
         $this->dispatch('filters-applied');
     }
 
-    public function addToCart(int $productId): void
+    public function addToCart(int $productId, ShoppingCart $cart): void
     {
         $product = Product::active()->find($productId);
 
@@ -205,9 +208,39 @@ new class extends Component
             return;
         }
 
-        $this->dispatch('cart-updated', productId: $productId)->to('cart-icon');
+        $cart->add($product);
+        unset($this->cartQuantities);
+        $this->dispatch('cart-updated')->to('cart-icon');
 
-        session()->flash('toast', $product->name . ' added to cart.');
+        session()->flash('toast', $product->name . ' added successfully.');
+    }
+
+    public function adjustCartQuantity(int $productId, int $change, ShoppingCart $cart): void
+    {
+        if (! in_array($change, [-1, 1], true)) {
+            return;
+        }
+
+        $product = Product::active()->find($productId);
+
+        if (! $product) {
+            return;
+        }
+
+        if ($change === 1) {
+            $cart->add($product);
+        } else {
+            $cart->changeQuantity($productId, $change);
+        }
+
+        unset($this->cartQuantities);
+        $this->dispatch('cart-updated')->to('cart-icon');
+    }
+
+    #[Computed]
+    public function cartQuantities(): array
+    {
+        return app(ShoppingCart::class)->quantities();
     }
 
     #[Computed]
@@ -218,7 +251,7 @@ new class extends Component
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('description', 'like', '%' . $this->search . '%');
             }))
-            ->when($this->categories, fn ($query) => $query->whereIn('category', $this->categories))
+            ->when($this->categories, fn ($query) => $query->whereHas('category', fn ($categoryQuery) => $categoryQuery->whereIn('slug', $this->categories)))
             ->when($this->occasions, fn ($query) => $query->whereIn('occasion', $this->occasions))
             ->whereBetween('price', [$this->minPrice, $this->maxPrice]);
 
@@ -266,6 +299,8 @@ new class extends Component
             x-init="setTimeout(() => show = false, 3000)"
             x-show="show"
             x-transition
+            role="status"
+            aria-live="polite"
             class="fixed top-5 right-5 z-50 rounded-xl bg-[#4A2A16] px-5 py-3 text-sm font-medium text-white shadow-lg"
         >
             {{ session('toast') }}
@@ -378,7 +413,7 @@ new class extends Component
 
                                 <div class="flex flex-1 flex-col gap-2 p-4">
                                     <h3 class="text-base font-semibold text-stone-800">{{ $product['name'] }}</h3>
-                                    <p class="text-sm leading-snug text-stone-500">{{ $product['desc'] }}</p>
+                                    <p class="text-sm leading-snug text-stone-500">{{ \Illuminate\Support\Str::limit($product['desc'], 15) }}</p>
 
                                     <div class="flex items-center gap-1.5">
                                         <div class="flex text-amber-400">
@@ -391,17 +426,37 @@ new class extends Component
                                         <span class="text-sm font-medium text-stone-600">{{ number_format($product['rating'], 1) }}</span>
                                     </div>
 
-                                    <div class="mt-auto flex items-center justify-between pt-2">
-                                        <button
-                                            wire:click="addToCart({{ $product['id'] }})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="addToCart({{ $product['id'] }})"
-                                            class="rounded-full bg-[#4A2A16] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#3A2011] disabled:opacity-60"
-                                        >
-                                            <span wire:loading.remove wire:target="addToCart({{ $product['id'] }})">Add to Cart</span>
-                                            <span wire:loading wire:target="addToCart({{ $product['id'] }})">Adding…</span>
-                                        </button>
-                                        <span class="text-base font-bold text-stone-900">&#8358;{{ number_format($product['price']) }}</span>
+                                    <div class="mt-auto flex flex-nowrap items-center justify-between gap-1 pt-2">
+                                        @if (($this->cartQuantities[$product['id']] ?? 0) > 0)
+                                            <div class="inline-flex shrink-0 items-center overflow-hidden rounded-full border border-[#4A2A16] text-[#4A2A16]">
+                                                <button
+                                                    type="button"
+                                                    wire:click="adjustCartQuantity({{ $product['id'] }}, -1)"
+                                                    wire:loading.attr="disabled"
+                                                    aria-label="Remove one {{ $product['name'] }}"
+                                                    class="flex h-8 w-8 items-center justify-center text-base hover:bg-[#4A2A16]/10 disabled:opacity-50"
+                                                >&minus;</button>
+                                                <span class="min-w-7 text-center text-xs font-semibold" aria-live="polite">{{ $this->cartQuantities[$product['id']] }}</span>
+                                                <button
+                                                    type="button"
+                                                    wire:click="adjustCartQuantity({{ $product['id'] }}, 1)"
+                                                    wire:loading.attr="disabled"
+                                                    aria-label="Add one {{ $product['name'] }}"
+                                                    class="flex h-8 w-8 items-center justify-center text-base hover:bg-[#4A2A16]/10 disabled:opacity-50"
+                                                >+</button>
+                                            </div>
+                                        @else
+                                            <button
+                                                wire:click="addToCart({{ $product['id'] }})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="addToCart({{ $product['id'] }})"
+                                                class="min-w-20 shrink-0 whitespace-nowrap rounded-full bg-[#4A2A16] px-2 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-[#3A2011] disabled:opacity-60"
+                                            >
+                                                <span wire:loading.remove wire:target="addToCart({{ $product['id'] }})">Add to Cart</span>
+                                                <span wire:loading wire:target="addToCart({{ $product['id'] }})">Adding…</span>
+                                            </button>
+                                        @endif
+                                        <span class="whitespace-nowrap text-right text-sm font-bold text-stone-900">&#8358;{{ number_format($product['price']) }}</span>
                                     </div>
                                 </div>
                             </article>

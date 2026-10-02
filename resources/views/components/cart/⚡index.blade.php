@@ -2,40 +2,18 @@
 
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use App\Services\ShoppingCart;
 
 new class extends Component
 {
-    public array $items = [
-        [
-            'id'          => 1,
-            'name'        => 'The Birthday Classic',
-            'size'        => '10" Red Velvet',
-            'inscription' => 'Happy Birthday Sarah!',
-            'price'       => 35000,
-            'qty'         => 1,
-            'image'       => 'images/cakes/birthday-classic.svg',
-        ],
-        [
-            'id'          => 2,
-            'name'        => 'The Birthday Classic',
-            'size'        => '10" Red Velvet',
-            'inscription' => 'Happy Birthday Sarah!',
-            'price'       => 35000,
-            'qty'         => 2,
-            'image'       => 'images/cakes/chocolate-fudge-cake.svg',
-        ],
-        [
-            'id'          => 3,
-            'name'        => 'The Birthday Classic',
-            'size'        => '10" Red Velvet',
-            'inscription' => 'Happy Birthday Sarah!',
-            'price'       => 35000,
-            'qty'         => 1,
-            'image'       => 'images/cakes/red-velvet-cake.svg',
-        ],
-    ];
+    public array $items = [];
 
     public string $specialInstructions = '';
+
+    public function mount(ShoppingCart $cart): void
+    {
+        $this->items = $cart->items();
+    }
 
     #[Computed]
     public function subtotal(): int
@@ -52,31 +30,26 @@ new class extends Component
 
     public function increment(int $id): void
     {
-        $this->updateQty($id, 1);
+        app(ShoppingCart::class)->changeQuantity($id, 1);
+        $this->refreshCart();
     }
 
     public function decrement(int $id): void
     {
-        $this->updateQty($id, -1);
-    }
-
-    protected function updateQty(int $id, int $delta): void
-    {
-        foreach ($this->items as $key => $item) {
-            if ($item['id'] === $id) {
-                $this->items[$key]['qty'] = max(1, $item['qty'] + $delta);
-                break;
-            }
-        }
-
-        $this->dispatch('cart-updated');
+        app(ShoppingCart::class)->changeQuantity($id, -1);
+        $this->refreshCart();
     }
 
     public function remove(int $id): void
     {
-        $this->items = array_values(array_filter($this->items, fn ($item) => $item['id'] !== $id));
+        app(ShoppingCart::class)->remove($id);
+        $this->refreshCart();
+    }
 
-        $this->dispatch('cart-updated');
+    private function refreshCart(): void
+    {
+        $this->items = app(ShoppingCart::class)->items();
+        $this->dispatch('cart-updated')->to('cart-icon');
     }
 
     public function proceedToCheckout()
@@ -96,7 +69,7 @@ new class extends Component
                     <div wire:key="item-{{ $item['id'] }}" class="flex flex-col sm:flex-row gap-4 py-6 first:pt-0">
 
                         <img
-                            src="{{ asset($item['image']) }}"
+                            src="{{ $item['image'] }}"
                             alt="{{ $item['name'] }}"
                             class="h-28 w-28 shrink-0 rounded-xl object-cover"
                             loading="lazy"
@@ -105,7 +78,6 @@ new class extends Component
                         <div class="flex-1 flex flex-col">
                             <h3 class="text-lg font-semibold text-neutral-900">{{ $item['name'] }}</h3>
                             <p class="text-sm text-neutral-500">{{ $item['size'] }}</p>
-                            <p class="text-sm text-neutral-500 mb-3">Inscription: {{ $item['inscription'] }}</p>
 
                             <div class="flex items-center gap-4 mb-3">
                                 <div class="inline-flex items-center rounded-lg border border-neutral-300 overflow-hidden">
@@ -137,7 +109,6 @@ new class extends Component
                             </div>
 
                             <div class="flex items-center gap-4 text-sm">
-                                <button type="button" class="underline text-neutral-700 hover:text-neutral-900">Edit</button>
                                 <button
                                     type="button"
                                     wire:click="remove({{ $item['id'] }})"

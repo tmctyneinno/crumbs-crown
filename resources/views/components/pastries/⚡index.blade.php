@@ -2,68 +2,49 @@
 
 namespace App\Livewire;
 
+use App\Models\Product;
+use App\Services\ShoppingCart;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 
 new class extends Component
 {
-    /**
-     * "Find Your Perfect Cake" — occasion categories.
-     * Swap for Category::query()->withCount('products')->get() once
-     * backed by the database.
-     */
-    #[Computed]
-    public function categories(): array
-    {
-        return [
-            ['name' => 'Sausage Rolls',    'slug' => 'sausage-rolls',    'image' => 'sausage-rolls.svg'],
-            ['name' => 'Brownies',      'slug' => 'brownies',     'image' => 'brownies.svg'],
-            ['name' => 'Chicken Pies',  'slug' => 'chicken-pies', 'image' => 'chicken-pies.svg'],
-            ['name' => 'Croissants',   'slug' => 'croissants',  'image' => 'croissants.svg'],
-            ['name' => 'Chin Chin',  'slug' => 'chin-chin', 'image' => 'chin-chin.svg'],
-            ['name' => 'Meat Pies',      'slug' => 'meat-pies',     'image' => 'meat-pies.svg'],
-            ['name' => 'Doughnut',    'slug' => 'doughnut',   'image' => 'doughnut.svg'],
-        ];
-    }
-
-    /**
-     * "Our Pastry Collection" — featured products shown in the horizontal rail.
-     * Swap for Product::featured()->take(8)->get() once backed by the database.
-     */
     #[Computed]
     public function pastries(): array
     {
-        return [
-            ['id' => 1, 'name' => 'Meat Pie', 'desc' => 'A timeless celebration cake made for candles, wishes and happy moments.', 'price' => 35000, 'rating' => 4.5, 'image' => 'meat-pie-2.svg'],
-            ['id' => 2, 'name' => 'Doughnut', 'desc' => 'Rich chocolate layers finished with a smooth, glossy ganache.', 'price' => 35000, 'rating' => 4.5, 'image' => 'doughnut-2.svg'],
-            ['id' => 3, 'name' => 'Egg Roll', 'desc' => 'Vanilla sponge with a chocolate drip and fresh strawberries on top.', 'price' => 35000, 'rating' => 4.5, 'image' => 'egg-roll-2.svg'],
-            ['id' => 4, 'name' => 'Puff Puff', 'desc' => 'A light celebration cake finished with seasonal fruit.', 'price' => 35000, 'rating' => 4.5, 'image' => 'puff-puff-2.svg'],
-            ['id' => 5, 'name' => 'Red Velvet Classic', 'desc' => 'Soft red velvet sponge layered with cream cheese frosting.', 'price' => 35000, 'rating' => 4.5, 'image' => 'meat-pie-2.svg'],
-        ];
+        return $this->pastryQuery()
+            ->limit(4)
+            ->get()
+            ->map(fn (Product $product) => $this->productCard($product))
+            ->all();
     }
 
     #[Computed]
     public function pastriesTwo(): array
     {
-        return [
-            ['id' => 1, 'name' => 'Doughnut', 'desc' => 'A timeless celebration cake made for candles, wishes and happy moments.', 'price' => 12000, 'rating' => 4.5, 'image' => 'doughnut-3.svg'],
-            ['id' => 2, 'name' => 'Cookies', 'desc' => 'Rich chocolate layers finished with a smooth, glossy ganache.', 'price' => 12000, 'rating' => 4.5, 'image' => 'cookies.svg'],
-            ['id' => 3, 'name' => 'Brownie', 'desc' => 'Vanilla sponge with a chocolate drip and fresh strawberries on top.', 'price' => 12000, 'rating' => 4.5, 'image' => 'brownie-2.svg'],
-            ['id' => 4, 'name' => 'Muffins', 'desc' => 'A light celebration cake finished with seasonal fruit.', 'price' => 15000, 'rating' => 4.5, 'image' => 'muffins.svg'],
-            ['id' => 5, 'name' => 'Doughnut', 'desc' => 'Soft red velvet sponge layered with cream cheese frosting.', 'price' => 12000, 'rating' => 4.5, 'image' => 'doughnut-3.svg'],
-        ];
+        return $this->pastryQuery()
+            ->offset(4)
+            ->limit(4)
+            ->get()
+            ->map(fn (Product $product) => $this->productCard($product))
+            ->all();
     }
 
     #[Computed]
     public function chunchy(): array
     {
-        return [
-            ['id' => 1, 'name' => 'Chunchy Bites 1kg', 'desc' => 'Crunchy, bite-sized treats made for sharing and snacking.', 'price' => 1000, 'rating' => 4.5, 'image' => 'chunchy-1.svg'],
-            ['id' => 2, 'name' => 'Chunchy Bites 2kg', 'desc' => 'Rich chocolate layers finished with a smooth, glossy ganache.', 'price' => 2000, 'rating' => 4.5, 'image' => 'chunchy-2.svg'],
-            ['id' => 3, 'name' => 'Chunchy Bites 3kg', 'desc' => 'Vanilla sponge with a chocolate drip and fresh strawberries on top.', 'price' => 2500, 'rating' => 4.5, 'image' => 'chunchy-3.svg'],
-            ['id' => 4, 'name' => 'Chunchy Bites 5kg', 'desc' => 'A light celebration cake finished with seasonal fruit.', 'price' => 3500, 'rating' => 4.5, 'image' => 'chunchy-5.svg'],
-            ['id' => 5, 'name' => 'Chunchy Bites 6kg', 'desc' => 'Soft red velvet sponge layered with cream cheese frosting.', 'price' => 1000, 'rating' => 4.5, 'image' => 'chunchy-1.svg'],
-        ];
+        return Product::active()
+            ->whereHas('category', fn ($query) => $query->where('slug', 'chin-chin'))
+            ->with('category')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('rating')
+            ->latest()
+            ->take(8)
+            ->get()
+            ->map(fn (Product $product) => $this->productCard($product))
+            ->all();
     }
 
 
@@ -111,11 +92,40 @@ new class extends Component
         ];
     }
 
-    public function addToCart(int $productId): void
+    public function addToCart(int $productId, ShoppingCart $cart): void
     {
-        // Replace with real cart logic (session, DB, or a Cart service).
-        session()->flash('toast', 'Added to cart.');
-        $this->dispatch('cart-updated', productId: $productId)->to('cart-icon');
+        $product = Product::active()->find($productId);
+
+        if (! $product) {
+            return;
+        }
+
+        $cart->add($product);
+        $this->dispatch('cart-updated')->to('cart-icon');
+        session()->flash('toast', $product->name . ' added successfully.');
+    }
+
+    private function pastryQuery(): Builder
+    {
+        return Product::active()
+            ->whereHas('category', fn ($query) => $query->where('slug', 'pastries'))
+            ->with('category')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('rating')
+            ->orderByDesc('created_at');
+    }
+
+    private function productCard(Product $product): array
+    {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'desc' => $product->description,
+            'price' => $product->price,
+            'rating' => $product->rating,
+            'image' => $product->image_url,
+            'category' => $product->category?->name ?? '',
+        ];
     }
 
 }
@@ -137,9 +147,9 @@ new class extends Component
                 {{ session('toast') }}
             </div>
         @endif
-
+  
         <div class="mx-auto max-w-5xl space-y-14 px-4 py-12 sm:px-6">
-            <livewire:pastries.pastries-categories :categories="$this->categories" />
+            <livewire:pastries.pastries-categories />
             <livewire:pastries.pastries-collection :pastries="$this->pastries" />
             <livewire:pastries.custom-pastries-cta :custom-cake-steps="$this->customCakeSteps" />
             <livewire:pastries.pastries-collection-second :pastriesTwo="$this->pastriesTwo" />

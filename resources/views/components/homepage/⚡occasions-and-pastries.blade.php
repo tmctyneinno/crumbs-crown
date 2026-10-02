@@ -1,65 +1,66 @@
 <?php
 
+use App\Models\Product;
+use Illuminate\Support\Str;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component
 {
-    public array $occasions = [
-        [
-            'id' => 1,
-            'name' => 'Birthdays',
-            'image' => 'images/occasions/birthday.svg',
-            'icon' => 'cake',
-        ],
-        [
-            'id' => 2,
-            'name' => 'Weddings',
-            'image' => 'images/occasions/wedding.svg',
-            'icon' => 'rings',
-        ],
-        [
-            'id' => 3,
-            'name' => 'Corporate Events',
-            'image' => 'images/occasions/corporate.svg',
-            'icon' => 'gift',
-        ],
-        [
-            'id' => 4,
-            'name' => 'Anniversaries',
-            'image' => 'images/occasions/anniversary.svg',
-            'icon' => 'heart-hands',
-        ],
-        [
-            'id' => 5,
-            'name' => 'Just Because',
-            'image' => 'images/occasions/just-because.svg',
-            'icon' => 'sparkle',
-        ],
-    ];
-
-    public array $pastries = [
-        ['id' => 1, 'name' => 'Sausage Rolls', 'image' => 'images/pastries/sausage-rolls.svg'],
-        ['id' => 2, 'name' => 'Brownies', 'image' => 'images/pastries/brownies.svg'],
-        ['id' => 3, 'name' => 'Chicken Pies', 'image' => 'images/pastries/chicken-pies.svg'],
-        ['id' => 4, 'name' => 'Croissants', 'image' => 'images/pastries/croissants.svg'],
-        ['id' => 5, 'name' => 'Chin Chin', 'image' => 'images/pastries/chin-chin.svg'],
-        ['id' => 6, 'name' => 'Meat Pies', 'image' => 'images/pastries/meat-pies.svg'],
-        ['id' => 7, 'name' => 'Doughnut', 'image' => 'images/pastries/doughnut.svg'],
-    ];
-
-    public function selectOccasion($occasionId)
+    #[Computed]
+    public function occasions(): array
     {
-        $occasion = collect($this->occasions)->firstWhere('id', $occasionId);
+        $assets = [
+            'birthday' => ['image' => 'images/occasions/birthday.svg', 'icon' => 'cake'],
+            'wedding' => ['image' => 'images/occasions/wedding.svg', 'icon' => 'rings'],
+            'corporate-events' => ['image' => 'images/occasions/corporate.svg', 'icon' => 'gift'],
+            'anniversary' => ['image' => 'images/occasions/anniversary.svg', 'icon' => 'heart-hands'],
+            'just-because' => ['image' => 'images/occasions/just-because.svg', 'icon' => 'sparkle'],
+        ];
 
-        // Navigate or filter products by occasion
-        return redirect()->route('shop', ['occasion' => $occasion['name']]);
+        return Product::active()
+            ->whereNotNull('occasion')
+            ->selectRaw('occasion, COUNT(*) as count')
+            ->groupBy('occasion')
+            ->orderBy('occasion')
+            ->get()
+            ->map(fn (Product $product) => [
+                'slug' => $product->occasion,
+                'name' => Str::headline($product->occasion),
+                'count' => $product->count,
+                'image' => $assets[$product->occasion]['image'] ?? 'images/occasions/birthday.svg',
+                'icon' => $assets[$product->occasion]['icon'] ?? 'cake',
+            ])
+            ->all();
     }
 
-    public function selectPastry($pastryId)
+    #[Computed]
+    public function pastries()
     {
-        $pastry = collect($this->pastries)->firstWhere('id', $pastryId);
+        return Product::active()
+            ->whereHas('category', fn ($query) => $query->where('slug', 'pastries'))
+            ->orderByDesc('is_featured')
+            ->orderByDesc('rating')
+            ->latest()
+            ->take(12)
+            ->get();
+    }
 
-        return redirect()->route('shop', ['category' => $pastry['name']]);
+    public function selectOccasion(string $occasion)
+    {
+        abort_unless(Product::active()->where('occasion', $occasion)->exists(), 404);
+
+        return redirect()->route('shop', ['occasions' => [$occasion]]);
+    }
+
+    public function selectPastry(int $pastryId)
+    {
+        $pastry = Product::active()
+            ->whereKey($pastryId)
+            ->whereHas('category', fn ($query) => $query->where('slug', 'pastries'))
+            ->firstOrFail();
+
+        return redirect()->route('shop', ['categories' => [$pastry->category->slug]]);
     }
 
 };
@@ -84,10 +85,10 @@ new class extends Component
 
             {{-- ================= OCCASIONS GRID ================= --}}
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-                @foreach ($occasions as $occasion)
+                @forelse ($this->occasions as $occasion)
                     <button
-                        wire:click="selectOccasion({{ $occasion['id'] }})"
-                        wire:key="occasion-{{ $occasion['id'] }}"
+                        wire:click="selectOccasion('{{ $occasion['slug'] }}')"
+                        wire:key="occasion-{{ $occasion['slug'] }}"
                         class="group relative bg-[#f5ebe3] rounded-2xl overflow-hidden text-left focus:outline-none focus:ring-2 focus:ring-[#4a2b23] transition-shadow duration-300 hover:shadow-lg"
                     >
                         {{-- Image --}}
@@ -139,13 +140,15 @@ new class extends Component
                             </p>
                         </div>
                     </button>
-                @endforeach
+                @empty
+                    <p class="col-span-full py-8 text-center text-sm text-gray-500">Occasion selections will appear as products are added.</p>
+                @endforelse
             </div>
 
             {{-- Explore All Button --}}
             <div class="flex justify-center mb-20">
                 <a
-                    href="#"
+                    href="{{ route('shop') }}"
                     wire:navigate
                     class="inline-flex items-center gap-2 bg-[#4a2b23] hover:bg-[#3a201a] text-white text-sm font-semibold px-6 py-3 rounded-full transition-colors duration-300"
                 >
@@ -164,7 +167,7 @@ new class extends Component
                     Explore Your Favourite Baked Pastries
                 </h3>
                 <a
-                    href="#"
+                    href="{{ route('pastries.index') }}"
                     wire:navigate
                     class="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-800 hover:text-[#4a2b23] transition-colors whitespace-nowrap"
                 >
@@ -176,23 +179,54 @@ new class extends Component
             </div>
 
             {{-- Pastries Scrollable Row --}}
-            <div class="flex gap-4 overflow-x-auto pb-4 mb-20 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent -mx-4 px-4 sm:mx-0 sm:px-0">
-                @foreach ($pastries as $pastry)
+            <div
+                x-data="{
+                    paused: false,
+                    direction: 1,
+                    scrollTimer: null,
+                    init() {
+                        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                        this.scrollTimer = window.setInterval(() => {
+                            if (this.paused) return;
+                            const maxScroll = this.$el.scrollWidth - this.$el.clientWidth;
+                            if (maxScroll <= 0) return;
+                            if (this.$el.scrollLeft >= maxScroll) this.direction = -1;
+                            if (this.$el.scrollLeft <= 0) this.direction = 1;
+                            this.$el.scrollLeft += this.direction;
+                        }, 30);
+                    },
+                    destroy() {
+                        window.clearInterval(this.scrollTimer);
+                    }
+                }"
+                @mouseenter="paused = true"
+                @mouseleave="paused = false"
+                @focusin="paused = true"
+                @focusout="paused = false"
+                @pointerdown="paused = true"
+                @pointerup.window="paused = false"
+                @pointercancel.window="paused = false"
+                aria-label="Pastry products"
+                class="-mx-4 mb-20 flex flex-nowrap gap-4 overflow-x-auto px-4 pb-4 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent sm:mx-0 sm:px-0"
+            >
+                @forelse ($this->pastries as $pastry)
                     <button
-                        wire:click="selectPastry({{ $pastry['id'] }})"
-                        wire:key="pastry-{{ $pastry['id'] }}"
-                        class="flex-shrink-0 w-36 bg-[#f5ebe3] rounded-2xl p-5 flex flex-col items-center gap-4 hover:shadow-md transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-[#4a2b23]"
+                        wire:click="selectPastry({{ $pastry->id }})"
+                        wire:key="pastry-{{ $pastry->id }}"
+                        class="w-36 shrink-0 bg-[#f5ebe3] rounded-2xl p-5 flex flex-col items-center gap-4 hover:shadow-md transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-[#4a2b23]"
                     >
                         <img
-                            src="{{ asset($pastry['image']) }}"
-                            alt="{{ $pastry['name'] }}"
+                            src="{{ $pastry->image_url }}"
+                            alt="{{ $pastry->name }}"
                             class="w-20 h-20 object-contain"
                         >
                         <span class="text-sm font-semibold text-gray-800 text-center">
-                            {{ $pastry['name'] }}
+                            {{ $pastry->name }}
                         </span>
                     </button>
-                @endforeach
+                @empty
+                    <p class="py-8 text-sm text-gray-500">Pastries will appear here when they are added to the shop.</p>
+                @endforelse
             </div>
 
             {{-- ================= BUILD YOUR BOX CTA ================= --}}

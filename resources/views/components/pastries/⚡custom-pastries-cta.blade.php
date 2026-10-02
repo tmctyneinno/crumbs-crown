@@ -7,7 +7,7 @@ new class extends Component
     public array $customCakeSteps = [];
 };
 ?>
-
+ 
 <div>
     <section>
         <div class="rounded-3xl bg-[#F6ECE4] p-6 sm:p-10">

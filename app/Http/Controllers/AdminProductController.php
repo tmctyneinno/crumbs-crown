@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,15 +17,15 @@ class AdminProductController extends Controller
         return view('admin.dashboard', [
             'totalProducts' => Product::count(),
             'activeProducts' => Product::active()->count(),
-            'categoryCount' => Product::query()->distinct()->count('category'),
-            'latestProducts' => Product::query()->latest()->take(5)->get(),
+            'categoryCount' => Category::count(),
+            'latestProducts' => Product::query()->with('category')->latest()->take(5)->get(),
         ]);
     }
 
     public function index(): View
     {
         return view('admin.products.index', [
-            'products' => Product::query()->latest()->paginate(12),
+            'products' => Product::query()->with('category')->latest()->paginate(12),
         ]);
     }
 
@@ -32,6 +33,7 @@ class AdminProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => new Product,
+            'categories' => $this->categories(),
             'formTitle' => 'Add product',
         ]);
     }
@@ -55,6 +57,7 @@ class AdminProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => $product,
+            'categories' => $this->categories(),
             'formTitle' => 'Edit product',
         ]);
     }
@@ -97,13 +100,12 @@ class AdminProductController extends Controller
             'description' => ['required', 'string', 'max:2000'],
             'price' => ['required', 'integer', 'min:0'],
             'rating' => ['required', 'numeric', 'min:0', 'max:5'],
-            'category' => ['required', 'string', 'max:80', 'regex:/[A-Za-z0-9]/'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'occasion' => ['nullable', 'string', 'max:80'],
             'dietary' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'max:5120'],
         ]);
 
-        $data['category'] = Str::slug($data['category']);
         $data['occasion'] = filled($data['occasion'] ?? null) ? Str::slug($data['occasion']) : null;
         $data['dietary'] = collect(explode(',', $data['dietary'] ?? ''))
             ->map(fn (string $tag) => Str::slug(trim($tag)))
@@ -115,5 +117,13 @@ class AdminProductController extends Controller
         $data['is_featured'] = $request->boolean('is_featured');
 
         return $data;
+    }
+
+    private function categories()
+    {
+        return Category::query()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,6 +39,10 @@ class AdminProductManagementTest extends TestCase
     public function test_admin_product_changes_flow_through_to_the_shop(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
+        $category = Category::create([
+            'name' => 'Celebration Cakes',
+            'slug' => 'celebration-cakes',
+        ]);
 
         $this->actingAs($admin)
             ->post(route('admin.products.store'), [
@@ -45,7 +50,7 @@ class AdminProductManagementTest extends TestCase
                 'description' => 'A cake added from the admin.',
                 'price' => 42000,
                 'rating' => 4.5,
-                'category' => 'Celebration Cakes',
+                'category_id' => $category->id,
                 'occasion' => 'Birthday',
                 'dietary' => 'Eggless, gluten-free',
                 'is_active' => '1',
@@ -53,7 +58,8 @@ class AdminProductManagementTest extends TestCase
             ->assertRedirect(route('admin.products.index'));
 
         $product = Product::firstOrFail();
-        $this->assertSame('celebration-cakes', $product->category);
+        $this->assertSame($category->id, $product->category_id);
+        $this->assertSame('celebration-cakes', $product->category->slug);
         $this->assertSame(['eggless', 'gluten-free'], $product->dietary);
         $this->get('/shop')->assertOk()->assertSee('Celebration Cake');
 
@@ -62,7 +68,7 @@ class AdminProductManagementTest extends TestCase
             'description' => 'Updated from the admin.',
             'price' => 45000,
             'rating' => 5,
-            'category' => 'Celebration Cakes',
+            'category_id' => $category->id,
             'occasion' => 'Birthday',
             'dietary' => '',
             'is_active' => '1',

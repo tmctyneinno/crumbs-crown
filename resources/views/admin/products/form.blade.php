@@ -42,8 +42,13 @@
             </div>
 
             <div>
-                <label for="category" class="mb-1.5 block text-sm font-medium">Category</label>
-                <input id="category" name="category" required maxlength="80" placeholder="Cakes" value="{{ old('category', $product->exists ? \Illuminate\Support\Str::headline($product->category) : '') }}" class="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm focus:border-[#936447] focus:outline-none focus:ring-2 focus:ring-[#936447]/20">
+                <label for="category_id" class="mb-1.5 block text-sm font-medium">Category</label>
+                <select id="category_id" name="category_id" required class="w-full rounded-md border border-stone-300 bg-white px-3 py-2.5 text-sm focus:border-[#936447] focus:outline-none focus:ring-2 focus:ring-[#936447]/20">
+                    <option value="">Select a category</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}" @selected(old('category_id', $product->category_id) == $category->id)>{{ $category->name }}</option>
+                    @endforeach
+                </select>
             </div>
             <div>
                 <label for="occasion" class="mb-1.5 block text-sm font-medium">Occasion <span class="font-normal text-stone-500">(optional)</span></label>
