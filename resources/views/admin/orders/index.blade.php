@@ -10,9 +10,10 @@
             <p class="mt-1 text-sm text-stone-500">Payment status, delivery details, and saved line items</p>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[980px] text-left text-sm">
+            <table class="w-full min-w-[1040px] text-left text-sm">
                 <thead class="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
                     <tr>
+                        <th class="px-5 py-3 font-semibold">S/N</th>
                         <th class="px-5 py-3 font-semibold">Order</th>
                         <th class="px-5 py-3 font-semibold">Customer</th>
                         <th class="px-5 py-3 font-semibold">Items</th>
@@ -24,6 +25,7 @@
                 <tbody class="divide-y divide-stone-100">
                     @forelse ($orders as $order)
                         <tr class="align-top">
+                            <td class="px-5 py-4 text-stone-500">{{ $orders->firstItem() + $loop->index }}</td>
                             <td class="px-5 py-4">
                                 <p class="font-semibold text-stone-900">{{ $order->order_number }}</p>
                                 <p class="mt-1 text-xs text-stone-500">{{ $order->created_at->format('M j, Y g:i A') }}</p>
@@ -69,7 +71,7 @@
                             <td class="whitespace-nowrap px-5 py-4 text-right font-semibold text-stone-900">&#8358;{{ number_format($order->subtotal) }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="px-5 py-10 text-center text-stone-500">No orders yet.</td></tr>
+                        <tr><td colspan="7" class="px-5 py-10 text-center text-stone-500">No orders yet.</td></tr>
                     @endforelse
                 </tbody>
             </table>

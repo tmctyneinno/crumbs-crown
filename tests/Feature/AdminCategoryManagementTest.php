@@ -19,7 +19,8 @@ class AdminCategoryManagementTest extends TestCase
 
         $this->actingAs($admin)
             ->get(route('admin.categories.index'))
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('S/N');
 
         $this->post(route('admin.categories.store'), [
             'name' => 'Seasonal Cakes',

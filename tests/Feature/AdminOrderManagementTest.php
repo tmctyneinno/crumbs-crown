@@ -41,6 +41,7 @@ class AdminOrderManagementTest extends TestCase
             ->get(route('admin.orders.index'))
             ->assertOk()
             ->assertSee('CC-TEST-ADMIN')
+            ->assertSee('S/N')
             ->assertSee('Ada Morgan')
             ->assertSee('ada@example.com')
             ->assertSee('Celebration Cake')

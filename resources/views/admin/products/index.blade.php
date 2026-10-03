@@ -14,6 +14,7 @@
             <table class="w-full min-w-[700px] text-left text-sm">
                 <thead class="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
                     <tr>
+                        <th class="px-5 py-3 font-semibold">S/N</th>
                         <th class="px-5 py-3 font-semibold">Product</th>
                         <th class="px-5 py-3 font-semibold">Category</th>
                         <th class="px-5 py-3 font-semibold">Price</th>
@@ -24,6 +25,7 @@
                 <tbody class="divide-y divide-stone-100">
                     @forelse ($products as $product)
                         <tr>
+                            <td class="px-5 py-3 text-stone-500">{{ $products->firstItem() + $loop->index }}</td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-3">
                                     <img src="{{ $product->image_url }}" alt="" class="h-11 w-11 rounded object-cover">
@@ -50,7 +52,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="px-5 py-10 text-center text-stone-500">No products found. Add a product to populate the shop.</td></tr>
+                        <tr><td colspan="6" class="px-5 py-10 text-center text-stone-500">No products found. Add a product to populate the shop.</td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -58,6 +58,10 @@ class AdminProductManagementTest extends TestCase
             ->assertRedirect(route('admin.products.index'));
 
         $product = Product::firstOrFail();
+        $this->get(route('admin.products.index'))
+            ->assertOk()
+            ->assertSee('S/N');
+
         $this->assertSame($category->id, $product->category_id);
         $this->assertSame('celebration-cakes', $product->category->slug);
         $this->assertSame(['eggless', 'gluten-free'], $product->dietary);

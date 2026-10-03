@@ -30,6 +30,7 @@ class AdminEnquiryManagementTest extends TestCase
             ->assertSee('08012345678')
             ->assertSee('Order')
             ->assertSee('I need a celebration cake for Saturday.')
+            ->assertSee('S/N')
             ->assertSee('x-on:toast.window', false);
     }
 

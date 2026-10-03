@@ -14,6 +14,7 @@
             <table class="w-full min-w-[640px] text-left text-sm">
                 <thead class="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
                     <tr>
+                        <th class="px-5 py-3 font-semibold">S/N</th>
                         <th class="px-5 py-3 font-semibold">Category</th>
                         <th class="px-5 py-3 font-semibold">Slug</th>
                         <th class="px-5 py-3 font-semibold">Products</th>
@@ -24,6 +25,7 @@
                 <tbody class="divide-y divide-stone-100">
                     @forelse ($categories as $category)
                         <tr>
+                            <td class="px-5 py-3 text-stone-500">{{ $categories->firstItem() + $loop->index }}</td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-3">
                                     @if ($category->image_url)
@@ -49,7 +51,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="px-5 py-10 text-center text-stone-500">No categories yet.</td></tr>
+                        <tr><td colspan="6" class="px-5 py-10 text-center text-stone-500">No categories yet.</td></tr>
                     @endforelse
                 </tbody>
             </table>

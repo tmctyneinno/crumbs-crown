@@ -13,6 +13,7 @@
             <table class="w-full min-w-[900px] text-left text-sm">
                 <thead class="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
                     <tr>
+                        <th class="px-5 py-3 font-semibold">S/N</th>
                         <th class="px-5 py-3 font-semibold">Customer</th>
                         <th class="px-5 py-3 font-semibold">Enquiry</th>
                         <th class="px-5 py-3 font-semibold">Message</th>
@@ -22,6 +23,7 @@
                 <tbody class="divide-y divide-stone-100">
                     @forelse ($enquiries as $enquiry)
                         <tr class="align-top">
+                            <td class="px-5 py-4 text-stone-500">{{ $enquiries->firstItem() + $loop->index }}</td>
                             <td class="px-5 py-4">
                                 <p class="font-medium text-stone-900">{{ $enquiry->full_name }}</p>
                                 <a href="mailto:{{ $enquiry->email }}" class="mt-1 block text-[#633e2c] hover:underline">{{ $enquiry->email }}</a>
@@ -35,7 +37,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-5 py-10 text-center text-stone-500">No customer enquiries yet.</td>
+                            <td colspan="5" class="px-5 py-10 text-center text-stone-500">No customer enquiries yet.</td>
                         </tr>
                     @endforelse
                 </tbody>
