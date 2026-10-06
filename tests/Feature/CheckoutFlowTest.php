@@ -50,6 +50,7 @@ class CheckoutFlowTest extends TestCase
             'delivery' => [
                 'method' => 'pickup',
                 'address' => '',
+                'postcode' => '',
                 'date' => now()->format('Y-m-d'),
                 'notes' => 'Please call before delivery.',
             ],
@@ -66,13 +67,44 @@ class CheckoutFlowTest extends TestCase
             ->assertSee('20,000');
     }
 
+    public function test_delivery_requires_and_saves_a_postcode_for_order_review(): void
+    {
+        $product = $this->createProduct();
+        app(ShoppingCart::class)->add($product);
+
+        Livewire::test('checkout.index')
+            ->set('fullName', 'Ada Morgan')
+            ->set('phone', '08012345678')
+            ->set('email', 'ada@example.com')
+            ->call('setDeliveryMethod', 'delivery')
+            ->set('deliveryAddress', '14 Market Road, Lagos')
+            ->call('proceedToNextStep')
+            ->assertHasErrors(['deliveryPostcode' => 'required_if']);
+
+        Livewire::test('checkout.index')
+            ->set('fullName', 'Ada Morgan')
+            ->set('phone', '08012345678')
+            ->set('email', 'ada@example.com')
+            ->call('setDeliveryMethod', 'delivery')
+            ->set('deliveryAddress', '14 Market Road, Lagos')
+            ->set('deliveryPostcode', '100001')
+            ->call('proceedToNextStep')
+            ->assertRedirect(route('checkout.review'));
+
+        $this->assertSame('100001', session('checkout.delivery.postcode'));
+        $this->get(route('checkout.review'))
+            ->assertOk()
+            ->assertSee('14 Market Road, Lagos')
+            ->assertSee('Postcode: 100001');
+    }
+
     public function test_review_edit_actions_return_to_cart_or_checkout(): void
     {
         $product = $this->createProduct();
         app(ShoppingCart::class)->add($product);
         session()->put('checkout', [
             'customer' => ['name' => 'Ada', 'phone' => '08012345678', 'email' => 'ada@example.com'],
-            'delivery' => ['method' => 'pickup', 'address' => '', 'date' => now()->format('Y-m-d'), 'notes' => ''],
+            'delivery' => ['method' => 'pickup', 'address' => '', 'postcode' => '', 'date' => now()->format('Y-m-d'), 'notes' => ''],
         ]);
 
         Livewire::test('checkout.review')

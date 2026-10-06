@@ -55,6 +55,9 @@
                                 @if ($order->delivery_address)
                                     <p class="mt-1 max-w-48 whitespace-normal text-xs text-stone-500">{{ $order->delivery_address }}</p>
                                 @endif
+                                @if ($order->delivery_postcode)
+                                    <p class="mt-1 text-xs text-stone-500">Postcode: {{ $order->delivery_postcode }}</p>
+                                @endif
                                 <p class="mt-1 text-xs text-stone-500">{{ $order->delivery_date->format('M j, Y') }}</p>
                             </td>
                             <td class="px-5 py-4">

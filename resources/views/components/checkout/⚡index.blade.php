@@ -19,6 +19,7 @@ new class extends Component
     // ----- Delivery -----
     public string $deliveryMethod = ''; // 'delivery' | 'pickup'
     public string $deliveryAddress = '';
+    public string $deliveryPostcode = '';
 
     // ----- Calendar -----
     public int $viewYear;
@@ -45,6 +46,7 @@ new class extends Component
         $this->notes = $delivery['notes'] ?? '';
         $this->deliveryMethod = $delivery['method'] ?? '';
         $this->deliveryAddress = $delivery['address'] ?? '';
+        $this->deliveryPostcode = $delivery['postcode'] ?? '';
         $this->selectedDate = $delivery['date'] ?? $this->selectedDate;
     }
 
@@ -131,6 +133,7 @@ new class extends Component
             'notes'           => 'nullable|string|max:1000',
             'deliveryMethod'  => 'required|in:delivery,pickup',
             'deliveryAddress' => 'required_if:deliveryMethod,delivery|nullable|string|max:500',
+            'deliveryPostcode' => 'required_if:deliveryMethod,delivery|nullable|string|max:20',
             'selectedDate'    => 'required|date',
         ];
     }
@@ -152,6 +155,7 @@ new class extends Component
             'delivery' => [
                 'method' => $this->deliveryMethod,
                 'address' => $this->deliveryMethod === 'delivery' ? $this->deliveryAddress : '',
+                'postcode' => $this->deliveryMethod === 'delivery' ? $this->deliveryPostcode : '',
                 'date' => $this->selectedDate,
                 'notes' => $this->notes,
             ],
@@ -359,6 +363,13 @@ new class extends Component
                     class="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-900/30 focus:border-amber-900"
                 />
                 @error('deliveryAddress') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+
+                <label for="deliveryPostcode" class="mt-4 block text-sm font-bold text-neutral-900 mb-1.5">Postcode</label>
+                <input
+                    id="deliveryPostcode" type="text" wire:model="deliveryPostcode" autocomplete="postal-code" placeholder="Enter your postcode"
+                    class="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-900/30 focus:border-amber-900"
+                />
+                @error('deliveryPostcode') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
             </div>
         @endif
 

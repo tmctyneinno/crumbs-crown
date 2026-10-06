@@ -18,6 +18,7 @@ class Order extends Model
         'customer_phone',
         'delivery_method',
         'delivery_address',
+        'delivery_postcode',
         'delivery_date',
         'notes',
         'stripe_checkout_session_id',

@@ -12,7 +12,7 @@ new class extends Component
 
     public array $orderItems = [];
     public array $customer = ['name' => '', 'email' => '', 'phone' => ''];
-    public array $delivery = ['method' => '', 'address' => '', 'dueDate' => '', 'notes' => ''];
+    public array $delivery = ['method' => '', 'address' => '', 'postcode' => '', 'dueDate' => '', 'notes' => ''];
     public int $subtotal = 0;
 
     public function mount(ShoppingCart $cart): void
@@ -30,6 +30,7 @@ new class extends Component
         $this->delivery = [
             'method' => $delivery['method'] ?? '',
             'address' => $delivery['address'] ?? '',
+            'postcode' => $delivery['postcode'] ?? '',
             'dueDate' => filled($delivery['date'] ?? null)
                 ? Carbon::parse($delivery['date'])->format('l, j F Y')
                 : '',
@@ -183,6 +184,7 @@ new class extends Component
                     <p>Method: {{ ucfirst($delivery['method']) }}</p>
                     @if ($delivery['method'] === 'delivery')
                         <p>Address: {{ $delivery['address'] }}</p>
+                        <p>Postcode: {{ $delivery['postcode'] }}</p>
                     @endif
                     <p>Due Date: {{ $delivery['dueDate'] }}</p>
                 </div>

@@ -5,11 +5,27 @@ use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminEnquiryController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SiteController::class, 'home'])->name('home');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [CustomerAuthController::class, 'loginForm'])->name('login');
+    Route::post('/login', [CustomerAuthController::class, 'login'])->middleware('throttle:6,1')->name('login.store');
+    Route::get('/register', [CustomerAuthController::class, 'registerForm'])->name('register');
+    Route::post('/register', [CustomerAuthController::class, 'register'])->middleware('throttle:6,1')->name('register.store');
+    Route::get('/forgot-password', [CustomerAuthController::class, 'forgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [CustomerAuthController::class, 'sendPasswordResetLink'])->middleware('throttle:6,1')->name('password.email');
+    Route::get('/reset-password/{token}', [CustomerAuthController::class, 'resetPasswordForm'])->name('password.reset');
+    Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword'])->name('password.update');
+});
+Route::middleware('auth')->group(function () {
+    Route::get('/account', [CustomerAuthController::class, 'account'])->name('account');
+    Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
+});
 
 Route::get('/shop', [SiteController::class, 'shop'])->name('shop'); 
 Route::get('/p/{token}', [SiteController::class, 'product'])->name('products.show');

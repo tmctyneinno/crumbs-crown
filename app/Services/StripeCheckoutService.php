@@ -31,6 +31,7 @@ class StripeCheckoutService
             || ! filled($customer['email'] ?? null)
             || ! filled($customer['phone'] ?? null)
             || ! filled($delivery['method'] ?? null)
+            || ($delivery['method'] === 'delivery' && ! filled($delivery['postcode'] ?? null))
             || ! filled($delivery['date'] ?? null)) {
             throw new RuntimeException('Checkout contact and delivery details are incomplete.');
         }
@@ -48,6 +49,7 @@ class StripeCheckoutService
                 'customer_phone' => $customer['phone'],
                 'delivery_method' => $delivery['method'],
                 'delivery_address' => $delivery['address'] ?? null,
+                'delivery_postcode' => $delivery['postcode'] ?? null,
                 'delivery_date' => $delivery['date'],
                 'notes' => $delivery['notes'] ?? null,
             ]);

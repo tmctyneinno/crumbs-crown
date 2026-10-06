@@ -100,8 +100,8 @@ php artisan admin:create
 Admin Credential
 
 Crumbs & Crown Admin
-admin@crumbscrown.test
-CrumbsCrown!2026
+admin@crumbscrown.com
+crumbscrown!2026
 
 % npm run dev:all
 

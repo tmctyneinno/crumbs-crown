@@ -29,6 +29,8 @@ class StripeCheckoutTest extends TestCase
             ->withArgs(function (Order $order, string $successUrl, string $cancelUrl): bool {
                 $this->assertSame(20000, $order->subtotal);
                 $this->assertSame('Ada Morgan', $order->customer_name);
+                $this->assertSame('14 Market Road, Lagos', $order->delivery_address);
+                $this->assertSame('100001', $order->delivery_postcode);
                 $this->assertCount(1, $order->items);
                 $this->assertStringContainsString('/checkout/order-confirmation/' . $order->order_number, $successUrl);
                 $this->assertStringContainsString('/checkout/cancel/' . $order->order_number, $cancelUrl);
@@ -48,6 +50,7 @@ class StripeCheckoutTest extends TestCase
         $order = Order::with('items')->firstOrFail();
         $this->assertSame('cs_test_session', $order->stripe_checkout_session_id);
         $this->assertSame('unpaid', $order->payment_status);
+        $this->assertSame('100001', $order->delivery_postcode);
         $this->assertDatabaseHas('order_items', [
             'order_id' => $order->id,
             'product_name' => 'Payment Cake',
@@ -170,8 +173,9 @@ class StripeCheckoutTest extends TestCase
                 'email' => 'ada@example.com',
             ],
             'delivery' => [
-                'method' => 'pickup',
-                'address' => '',
+                'method' => 'delivery',
+                'address' => '14 Market Road, Lagos',
+                'postcode' => '100001',
                 'date' => now()->format('Y-m-d'),
                 'notes' => '',
             ],

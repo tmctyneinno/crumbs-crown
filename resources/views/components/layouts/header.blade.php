@@ -1,4 +1,4 @@
-<header class="fixed w-full top-0 z-50 bg-[#5A2F20]/95 backdrop-blur-md border-b border-[#5C3A2E]/20" x-data="{ mobileMenuOpen: false }">
+<header class="fixed w-full top-0 z-50 bg-[#5A2F20]/95 backdrop-blur-md border-b border-[#5C3A2E]/20" x-data="{ mobileMenuOpen: false, accountMenuOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
             
@@ -18,16 +18,34 @@
 
             <!-- Right Icons -->
             <div class="hidden lg:flex items-center space-x-6">
-                <button class="text-white/80 hover:text-white transition-colors">
+                <a href="{{ route('shop') }}#product-search" wire:navigate aria-label="Search products" class="text-white/80 hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                </button>
-                <button class="text-white/80 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </button>
+                </a>
+                @auth
+                    <div class="relative" @click.outside="accountMenuOpen = false">
+                        <button type="button" @click="accountMenuOpen = !accountMenuOpen" :aria-expanded="accountMenuOpen.toString()" aria-label="Open account menu" class="text-white/80 transition-colors hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </button>
+                        <div x-show="accountMenuOpen" x-transition class="absolute right-0 mt-3 w-52 rounded-xl border border-stone-200 bg-white py-2 text-stone-800 shadow-xl" style="display: none;">
+                            <p class="truncate px-4 py-2 text-xs text-stone-500">{{ auth()->user()->email }}</p>
+                            <a href="{{ route('account') }}" wire:navigate @click="accountMenuOpen = false" class="block px-4 py-2 text-sm hover:bg-stone-50">Your account</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-rose-700 hover:bg-rose-50">Sign out</button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" wire:navigate aria-label="Sign in to your account" class="text-white/80 transition-colors hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </a>
+                @endauth
                 <livewire:cart-icon />
             </div>
 

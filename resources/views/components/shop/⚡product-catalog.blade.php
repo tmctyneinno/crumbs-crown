@@ -304,7 +304,7 @@ new class extends Component
 
                 {{-- Top bar: search + sort --}}
                 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="relative flex-1 sm:max-w-xl">
+                    <div id="product-search" class="relative flex-1 sm:max-w-xl">
                         <svg class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
                         </svg>

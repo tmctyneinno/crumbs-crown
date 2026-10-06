@@ -26,6 +26,7 @@ class AdminOrderManagementTest extends TestCase
             'customer_phone' => '08012345678',
             'delivery_method' => 'delivery',
             'delivery_address' => '14 Market Road, Lagos',
+            'delivery_postcode' => '100001',
             'delivery_date' => now()->format('Y-m-d'),
         ]);
         $order->items()->create([
@@ -48,6 +49,7 @@ class AdminOrderManagementTest extends TestCase
             ->assertSee('Vanilla')
             ->assertSee('Payment failed')
             ->assertSee('Stripe credentials were rejected')
+            ->assertSee('Postcode: 100001')
             ->assertSee('42,000');
     }
 
