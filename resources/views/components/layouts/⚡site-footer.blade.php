@@ -27,8 +27,8 @@ new class extends Component
 
         $this->celebrateLinks = [
             ['label' => 'Custom Cakes', 'url' => route('custom-cakes')],
-            ['label' => 'Weddings', 'url' => route('wedding')],
-            ['label' => 'Events', 'url' => route('connect')],
+            ['label' => 'Weddings', 'url' => route('shop', ['categories' => ['cakes'], 'occasions' => ['wedding']])],
+            ['label' => 'Events', 'url' => route('shop', ['categories' => ['cakes']])],
             ['label' => 'Corporate Gifting', 'url' => route('custom-cakes')],
         ];
 
@@ -43,9 +43,8 @@ new class extends Component
         $this->companyLinks = [
             ['label' => 'About Us', 'url' => route('about')],
             ['label' => 'Our Story', 'url' => route('our-story')],
-            ['label' => 'THE MORGANS', 'url' => route('the-morgans')],
+            ['label' => 'THE MORGANS', 'url' => 'https://www.morgansconsortium.com/'],
             ['label' => 'Careers', 'url' => route('careers')],
-            ['label' => 'Corporate Enquiries', 'url' => route('corporate-enquiries')],
         ];
     }
 
