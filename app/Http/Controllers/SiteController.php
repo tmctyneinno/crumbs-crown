@@ -138,9 +138,61 @@ class SiteController extends Controller
         return view('pages.pastries');
     }
 
+    public function pastriesShow(string $slug): View
+    {
+        return view('pages.pastry', [
+            'slug' => $slug,
+        ]);
+    }
+
+    public function wedding()
+    {
+        return view('pages.wedding');
+    }
+
     public function about()
     {
         return view('pages.about');
+    }
+
+    public function ourStory()
+    {
+        return view('pages.our-story');
+    }
+
+    public function theMorgans()
+    {
+        return view('pages.the-morgans');
+    }
+
+    public function careers()
+    {
+        return view('pages.careers');
+    }
+
+    public function corporateEnquiries()
+    {
+        return view('pages.corporate-enquiries');
+    }
+
+    public function deliveryInformation()
+    {
+        return view('pages.delivery-information');
+    }
+
+    public function faqs()
+    {
+        return view('pages.faqs');
+    }
+
+    public function allergenInformation()
+    {
+        return view('pages.allergen-information');
+    }
+
+    public function orderTerms()
+    {
+        return view('pages.order-terms');
     }
 
     public function connect()

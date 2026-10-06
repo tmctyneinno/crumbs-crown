@@ -16,8 +16,7 @@
 
                 <!-- Brand Column -->
                 <div class="lg:col-span-1">
-                    <h3 class="font-['Playfair_Display'] text-2xl text-white">Crumbs & Crown</h3>
-                    <p class="text-white/50 text-[10px] tracking-widest uppercase mt-1">A the <span class="font-semibold text-white/70">Morgans</span> Company</p>
+                    <img src="{{ asset('images/logo.jpeg') }}" alt="Crumbs & Crown logo" class="h-16 w-auto object-contain mb-3">
                     <p class="text-white/60 text-sm leading-relaxed mt-4">
                         Make your next celebration a little sweeter. From everyday treats to show-stopping custom cakes, we're here to make something worth remembering.
                     </p>

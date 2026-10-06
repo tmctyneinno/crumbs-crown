@@ -7,35 +7,35 @@ new class extends Component
      public string $email = '';
 
     public array $shopLinks = [
-        ['label' => 'Cakes', 'url' => '#'],
-        ['label' => 'Pastries & Bakery', 'url' => '#'],
-        ['label' => 'Desserts', 'url' => '#'],
-        ['label' => 'Confectionery', 'url' => '#'],
-        ['label' => 'Gift Boxes', 'url' => '#'],
-        ['label' => 'Seasonal Collections', 'url' => '#'],
+        ['label' => 'Cakes', 'url' => route('cakes')],
+        ['label' => 'Pastries & Bakery', 'url' => route('pastries.index')],
+        ['label' => 'Desserts', 'url' => route('shop')],
+        ['label' => 'Confectionery', 'url' => route('shop')],
+        ['label' => 'Gift Boxes', 'url' => route('shop')],
+        ['label' => 'Seasonal Collections', 'url' => route('shop')],
     ];
 
     public array $celebrateLinks = [
-        ['label' => 'Custom Cakes', 'url' => '#'],
-        ['label' => 'Weddings', 'url' => '#'],
-        ['label' => 'Events', 'url' => '#'],
-        ['label' => 'Corporate Gifting', 'url' => '#'],
+        ['label' => 'Custom Cakes', 'url' => route('custom-cakes')],
+        ['label' => 'Weddings', 'url' => route('wedding')],
+        ['label' => 'Events', 'url' => route('connect')],
+        ['label' => 'Corporate Gifting', 'url' => route('custom-cakes')],
     ];
 
     public array $helpLinks = [
-        ['label' => 'Contact Us', 'url' => '#'],
-        ['label' => 'Delivery Information', 'url' => '#'],
-        ['label' => 'Frequently Asked Questions', 'url' => '#'],
-        ['label' => 'Allergen Information', 'url' => '#'],
-        ['label' => 'Order Terms', 'url' => '#'],
+        ['label' => 'Contact Us', 'url' => route('contact')],
+        ['label' => 'Delivery Information', 'url' => route('delivery-information')],
+        ['label' => 'Frequently Asked Questions', 'url' => route('faqs')],
+        ['label' => 'Allergen Information', 'url' => route('allergen-information')],
+        ['label' => 'Order Terms', 'url' => route('order-terms')],
     ];
 
     public array $companyLinks = [
-        ['label' => 'About Us', 'url' => '#'],
-        ['label' => 'Our Story', 'url' => '#'],
-        ['label' => 'THE MORGANS', 'url' => '#'],
-        ['label' => 'Careers', 'url' => '#'],
-        ['label' => 'Corporate Enquiries', 'url' => '#'],
+        ['label' => 'About Us', 'url' => route('about')],
+        ['label' => 'Our Story', 'url' => route('our-story')],
+        ['label' => 'THE MORGANS', 'url' => route('the-morgans')],
+        ['label' => 'Careers', 'url' => route('careers')],
+        ['label' => 'Corporate Enquiries', 'url' => route('corporate-enquiries')],
     ];
 
     public function subscribe()
@@ -81,12 +81,7 @@ new class extends Component
 
                     {{-- Brand Column --}}
                     <div class="lg:col-span-4">
-                        <h2 class="font-serif text-3xl sm:text-4xl text-white mb-2">
-                            Crumbs &amp; Crown
-                        </h2>
-                        <p class="text-xs uppercase tracking-widest text-white/60 mb-6">
-                            A The <span class="font-bold text-white/80">Morgans</span> Company
-                        </p>
+                        <img src="{{ asset('images/logo.jpeg') }}" alt="Crumbs & Crown logo" class="h-12 sm:h-20 w-auto object-contain mb-6">
                         <p class="text-white/70 leading-relaxed max-w-xs">
                             Make your next celebration a little sweeter. From everyday treats to show-stopping custom cakes, we're here to make something worth remembering.
                         </p>

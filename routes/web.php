@@ -23,9 +23,17 @@ Route::post('/stripe/webhook', StripeWebhookController::class)->name('stripe.web
 Route::get('/cakes', [SiteController::class, 'cakes'])->name('cakes');
 Route::get('/custom-cakes', [SiteController::class, 'customCakes'])->name('custom-cakes');
 Route::get('/pastries', [SiteController::class, 'pastries'])->name('pastries.index');
-Route::get('/pastries/{slug}', [SiteController::class, 'pastries.show'])->name('pastries.show');
+Route::get('/pastries/{slug}', [SiteController::class, 'pastriesShow'])->name('pastries.show');
 Route::get('/wedding', [SiteController::class, 'wedding'])->name('wedding');
 Route::get('/about', [SiteController::class, 'about'])->name('about');
+Route::get('/our-story', [SiteController::class, 'ourStory'])->name('our-story');
+Route::get('/the-morgans', [SiteController::class, 'theMorgans'])->name('the-morgans');
+Route::get('/careers', [SiteController::class, 'careers'])->name('careers');
+Route::get('/corporate-enquiries', [SiteController::class, 'corporateEnquiries'])->name('corporate-enquiries');
+Route::get('/delivery-information', [SiteController::class, 'deliveryInformation'])->name('delivery-information');
+Route::get('/faqs', [SiteController::class, 'faqs'])->name('faqs');
+Route::get('/allergen-information', [SiteController::class, 'allergenInformation'])->name('allergen-information');
+Route::get('/order-terms', [SiteController::class, 'orderTerms'])->name('order-terms');
 Route::get('/connect', [SiteController::class, 'connect'])->name('connect');
 Route::get('/contact', [SiteController::class, 'connect'])->name('contact');
 
