@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [SiteController::class, 'home'])->name('home');
 
 Route::get('/shop', [SiteController::class, 'shop'])->name('shop'); 
-Route::get('/products/{token}', [SiteController::class, 'product'])->name('products.show');
-Route::post('/products/{product}/cart', [SiteController::class, 'addProductToCart'])->name('products.cart.store');
+Route::get('/p/{token}', [SiteController::class, 'product'])->name('products.show');
+Route::post('/p/{token}/cart', [SiteController::class, 'addProductToCart'])->name('products.cart.store');
 Route::get('/cart', [SiteController::class, 'cart'])->name('cart');
 Route::get('/checkout', [SiteController::class, 'checkout'])->name('checkout');
 Route::get('/checkout/review', [SiteController::class, 'checkoutReview'])->name('checkout.review');

@@ -42,7 +42,7 @@ class AboutPageProductsTest extends TestCase
         Livewire::test('aboutUs.index')
             ->assertSee($activePastries[0]->name)
             ->assertSee($activePastries[5]->name)
-            ->assertSee('/products/', false)
+            ->assertSee('/p/', false)
             ->assertDontSee('Inactive Pastry')
             ->assertDontSee('Catalog Cake')
             ->assertDontSee('Red Velvet Classic');

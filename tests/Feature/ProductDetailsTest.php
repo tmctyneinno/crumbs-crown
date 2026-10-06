@@ -64,14 +64,14 @@ class ProductDetailsTest extends TestCase
         ]);
 
         $response = $this->from($product->detail_url)
-            ->post(route('products.cart.store', $product));
+            ->post(route('products.cart.store', ['token' => basename(parse_url($product->detail_url, PHP_URL_PATH))]));
         $response->assertRedirect();
 
         $this->assertSame([$product->id => 1], session('cart'));
         $this->get($response->headers->get('Location'))->assertSee('Cart Cake added to your cart.');
     }
 
-    public function test_product_detail_urls_encrypt_ids_and_reject_plain_numeric_ids(): void
+    public function test_product_detail_urls_use_hashids_and_reject_plain_numeric_ids(): void
     {
         $category = Category::create(['name' => 'Cakes', 'slug' => 'cakes']);
         $product = Product::create([
@@ -86,22 +86,22 @@ class ProductDetailsTest extends TestCase
         $this->get('/products/'.$product->id)->assertNotFound();
     }
 
-    public function test_product_detail_encryption_token_is_compact_and_rejects_tampering(): void
+    public function test_product_detail_hashid_is_short_and_unknown_tokens_are_rejected(): void
     {
         $category = Category::create(['name' => 'Cakes', 'slug' => 'cakes']);
         $product = Product::create([
             'name' => 'Compact URL Cake',
-            'description' => 'A product with a short encrypted URL.',
+            'description' => 'A product with a short Hashids URL.',
             'price' => 18000,
             'category_id' => $category->id,
         ]);
 
         $token = basename(parse_url($product->detail_url, PHP_URL_PATH));
 
-        $this->assertLessThan(60, strlen($token));
+        $this->assertLessThan(10, strlen($token));
+        $this->assertStringStartsWith('/p/', parse_url($product->detail_url, PHP_URL_PATH));
         $this->get($product->detail_url)->assertOk()->assertSee('Compact URL Cake');
-        $tamperedToken = substr($token, 0, -1).($token[-1] === 'A' ? 'B' : 'A');
-        $this->get('/products/'.$tamperedToken)->assertNotFound();
+        $this->get('/p/0000000000')->assertNotFound();
     }
 
     public function test_product_detail_adds_the_selected_quantity_to_the_shared_cart(): void

@@ -25,7 +25,7 @@ class SiteController extends Controller
 
     public function product(string $token): View
     {
-        $product = Product::findByEncryptedId($token);
+        $product = Product::findByHashid($token);
 
         abort_unless($product, 404);
         abort_unless($product->is_active, 404);
@@ -35,8 +35,11 @@ class SiteController extends Controller
         ]);
     } 
 
-    public function addProductToCart(Product $product, ShoppingCart $cart): RedirectResponse
+    public function addProductToCart(string $token, ShoppingCart $cart): RedirectResponse
     {
+        $product = Product::findByHashid($token);
+
+        abort_unless($product, 404);
         abort_unless($product->is_active, 404);
 
         $cart->add($product);
