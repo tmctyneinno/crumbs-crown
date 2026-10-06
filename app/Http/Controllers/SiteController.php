@@ -23,8 +23,11 @@ class SiteController extends Controller
         return view('pages.shop');
     }
 
-    public function product(Product $product): View
+    public function product(string $token): View
     {
+        $product = Product::findByEncryptedId($token);
+
+        abort_unless($product, 404);
         abort_unless($product->is_active, 404);
 
         return view('pages.product', [
@@ -38,7 +41,7 @@ class SiteController extends Controller
 
         $cart->add($product);
 
-        return redirect()->route('products.show', $product)
+        return redirect($product->detail_url)
             ->with('status', $product->name . ' added to your cart.');
     }
 

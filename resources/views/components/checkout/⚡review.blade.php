@@ -58,7 +58,9 @@ new class extends Component
             return $this->redirect($checkout->start($cart));
         } catch (\Stripe\Exception\AuthenticationException $exception) {
             $this->dispatch('toast', message: 'Payment is temporarily unavailable. Please contact us to complete your order.', type: 'error');
-        } catch (\Throwable $exception) {
+        } catch (\Exception $exception) {
+            $this->dispatch('toast', message: 'Payment could not be started. Please try again.', type: 'error');
+        } catch (\Error $exception) {
             $this->dispatch('toast', message: 'Payment could not be started. Please try again.', type: 'error');
         }
     }

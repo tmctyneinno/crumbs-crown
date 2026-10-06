@@ -6,37 +6,48 @@ new class extends Component
 {
      public string $email = '';
 
-    public array $shopLinks = [
-        ['label' => 'Cakes', 'url' => route('cakes')],
-        ['label' => 'Pastries & Bakery', 'url' => route('pastries.index')],
-        ['label' => 'Desserts', 'url' => route('shop')],
-        ['label' => 'Confectionery', 'url' => route('shop')],
-        ['label' => 'Gift Boxes', 'url' => route('shop')],
-        ['label' => 'Seasonal Collections', 'url' => route('shop')],
-    ];
+    public array $shopLinks = [];
 
-    public array $celebrateLinks = [
-        ['label' => 'Custom Cakes', 'url' => route('custom-cakes')],
-        ['label' => 'Weddings', 'url' => route('wedding')],
-        ['label' => 'Events', 'url' => route('connect')],
-        ['label' => 'Corporate Gifting', 'url' => route('custom-cakes')],
-    ];
+    public array $celebrateLinks = [];
 
-    public array $helpLinks = [
-        ['label' => 'Contact Us', 'url' => route('contact')],
-        ['label' => 'Delivery Information', 'url' => route('delivery-information')],
-        ['label' => 'Frequently Asked Questions', 'url' => route('faqs')],
-        ['label' => 'Allergen Information', 'url' => route('allergen-information')],
-        ['label' => 'Order Terms', 'url' => route('order-terms')],
-    ];
+    public array $helpLinks = [];
 
-    public array $companyLinks = [
-        ['label' => 'About Us', 'url' => route('about')],
-        ['label' => 'Our Story', 'url' => route('our-story')],
-        ['label' => 'THE MORGANS', 'url' => route('the-morgans')],
-        ['label' => 'Careers', 'url' => route('careers')],
-        ['label' => 'Corporate Enquiries', 'url' => route('corporate-enquiries')],
-    ];
+    public array $companyLinks = [];
+
+    public function mount(): void
+    {
+        $this->shopLinks = [
+            ['label' => 'Cakes', 'url' => route('cakes')],
+            ['label' => 'Pastries & Bakery', 'url' => route('pastries.index')],
+            ['label' => 'Desserts', 'url' => route('shop')],
+            ['label' => 'Confectionery', 'url' => route('shop')],
+            ['label' => 'Gift Boxes', 'url' => route('shop')],
+            ['label' => 'Seasonal Collections', 'url' => route('shop')],
+        ];
+
+        $this->celebrateLinks = [
+            ['label' => 'Custom Cakes', 'url' => route('custom-cakes')],
+            ['label' => 'Weddings', 'url' => route('wedding')],
+            ['label' => 'Events', 'url' => route('connect')],
+            ['label' => 'Corporate Gifting', 'url' => route('custom-cakes')],
+        ];
+
+        $this->helpLinks = [
+            ['label' => 'Contact Us', 'url' => route('contact')],
+            ['label' => 'Delivery Information', 'url' => route('delivery-information')],
+            ['label' => 'Frequently Asked Questions', 'url' => route('faqs')],
+            ['label' => 'Allergen Information', 'url' => route('allergen-information')],
+            ['label' => 'Order Terms', 'url' => route('order-terms')],
+        ];
+
+        $this->companyLinks = [
+            ['label' => 'About Us', 'url' => route('about')],
+            ['label' => 'Our Story', 'url' => route('our-story')],
+            ['label' => 'THE MORGANS', 'url' => route('the-morgans')],
+            ['label' => 'Careers', 'url' => route('careers')],
+            ['label' => 'Corporate Enquiries', 'url' => route('corporate-enquiries')],
+        ];
+    }
 
     public function subscribe()
     {

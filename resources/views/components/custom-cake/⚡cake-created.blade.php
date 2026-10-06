@@ -78,7 +78,7 @@ new class extends Component
         <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             @foreach ($this->featuredCreations as $creation)
                 <a
-                    href="{{ isset($creation['id']) ? route('products.show', $creation['id']) : route('shop', ['search' => $creation['title']]) }}"
+                    href="{{ isset($creation['id']) ? \App\Models\Product::detailUrlForId($creation['id']) : route('shop', ['search' => $creation['title']]) }}"
                     wire:navigate
                     class="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white transition-shadow hover:shadow-md"
                 >

@@ -81,13 +81,21 @@ class StripeCheckoutService
             $order->update(['stripe_checkout_session_id' => $session->id]);
 
             return $session->url;
-        } catch (\Throwable $exception) {
+        } catch (\Exception $exception) {
             $order->update([
                 'status' => 'payment_failed',
                 'payment_status' => 'failed',
                 'payment_error' => $exception instanceof AuthenticationException
                     ? 'stripe_authentication'
                     : 'stripe_checkout',
+            ]);
+
+            throw $exception;
+        } catch (\Error $exception) {
+            $order->update([
+                'status' => 'payment_failed',
+                'payment_status' => 'failed',
+                'payment_error' => 'stripe_checkout',
             ]);
 
             throw $exception;

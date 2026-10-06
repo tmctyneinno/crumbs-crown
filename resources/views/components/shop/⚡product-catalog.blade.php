@@ -396,7 +396,7 @@ new class extends Component
                                 </div>
 
                                 <div class="flex flex-1 flex-col gap-2 p-4">
-                                    <h3 class="text-base font-semibold text-stone-800"><a href="{{ route('products.show', $product['id']) }}" wire:navigate class="hover:text-[#633e2c] hover:underline">{{ $product['name'] }}</a></h3>
+                                    <h3 class="text-base font-semibold text-stone-800"><a href="{{ \App\Models\Product::detailUrlForId($product['id']) }}" wire:navigate class="hover:text-[#633e2c] hover:underline">{{ $product['name'] }}</a></h3>
                                     <p class="text-sm leading-snug text-stone-500">{{ \Illuminate\Support\Str::limit($product['desc'], 15) }}</p>
 
                                     <div class="flex items-center gap-1.5">

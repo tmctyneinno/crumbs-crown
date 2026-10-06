@@ -30,7 +30,7 @@
                                 <div class="flex items-center gap-3">
                                     <img src="{{ $product->image_url }}" alt="" class="h-11 w-11 rounded object-cover">
                                     <span class="min-w-0">
-                                        <a href="{{ route('products.show', $product) }}" class="block truncate font-medium text-stone-900 hover:underline">{{ $product->name }}</a>
+                                        <a href="{{ $product->detail_url }}" class="block truncate font-medium text-stone-900 hover:underline">{{ $product->name }}</a>
                                         <span class="mt-0.5 block max-w-sm truncate text-xs text-stone-500">{{ $product->description }}</span>
                                     </span>
                                 </div>

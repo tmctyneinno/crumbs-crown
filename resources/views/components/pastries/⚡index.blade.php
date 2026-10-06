@@ -125,7 +125,7 @@ new class extends Component
             'rating' => $product->rating,
             'image' => $product->image_url,
             'category' => $product->category?->name ?? '',
-            'detail_url' => route('products.show', $product),
+            'detail_url' => $product->detail_url,
         ];
     }
 

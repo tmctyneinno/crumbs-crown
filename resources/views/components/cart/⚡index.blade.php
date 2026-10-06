@@ -82,7 +82,7 @@ new class extends Component
                         />
 
                         <div class="flex-1 flex flex-col">
-                            <h3 class="text-lg font-semibold text-neutral-900"><a href="{{ route('products.show', $item['id']) }}" wire:navigate class="hover:text-[#633e2c] hover:underline">{{ $item['name'] }}</a></h3>
+                            <h3 class="text-lg font-semibold text-neutral-900"><a href="{{ \App\Models\Product::detailUrlForId($item['id']) }}" wire:navigate class="hover:text-[#633e2c] hover:underline">{{ $item['name'] }}</a></h3>
                             <p class="text-sm text-neutral-500">{{ $item['size'] }}</p>
 
                             <div class="flex items-center gap-4 mb-3">

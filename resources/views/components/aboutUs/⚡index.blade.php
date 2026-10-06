@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Models\Product;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
  
@@ -33,24 +35,43 @@ new class extends Component
     #[Computed]
     public function pastries(): array
     {
-        return [
-            ['id' => 1, 'name' => 'Meat Pie', 'desc' => 'A timeless celebration cake made for candles, wishes and happy moments.', 'price' => 35000, 'rating' => 4.5, 'image' => 'meat-pie-2.svg'],
-            ['id' => 2, 'name' => 'Doughnut', 'desc' => 'Rich chocolate layers finished with a smooth, glossy ganache.', 'price' => 35000, 'rating' => 4.5, 'image' => 'doughnut-2.svg'],
-            ['id' => 3, 'name' => 'Egg Roll', 'desc' => 'Vanilla sponge with a chocolate drip and fresh strawberries on top.', 'price' => 35000, 'rating' => 4.5, 'image' => 'egg-roll-2.svg'],
-            ['id' => 4, 'name' => 'Puff Puff', 'desc' => 'A light celebration cake finished with seasonal fruit.', 'price' => 35000, 'rating' => 4.5, 'image' => 'puff-puff-2.svg'],
-            ['id' => 5, 'name' => 'Red Velvet Classic', 'desc' => 'Soft red velvet sponge layered with cream cheese frosting.', 'price' => 35000, 'rating' => 4.5, 'image' => 'meat-pie-2.svg'],
-        ];
+        return $this->pastryProducts()
+            ->take(4)
+            ->map(fn (Product $product) => $this->productCard($product))
+            ->all();
     }
 
     #[Computed]
     public function pastriesTwo(): array
     {
+        return $this->pastryProducts()
+            ->skip(4)
+            ->map(fn (Product $product) => $this->productCard($product))
+            ->all();
+    }
+
+    private function pastryProducts(): Collection
+    {
+        return Product::active()
+            ->whereHas('category', fn ($query) => $query->where('slug', 'pastries'))
+            ->with('category')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('rating')
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
+    private function productCard(Product $product): array
+    {
         return [
-            ['id' => 1, 'name' => 'Doughnut', 'desc' => 'A timeless celebration cake made for candles, wishes and happy moments.', 'price' => 12000, 'rating' => 4.5, 'image' => 'doughnut-3.svg'],
-            ['id' => 2, 'name' => 'Cookies', 'desc' => 'Rich chocolate layers finished with a smooth, glossy ganache.', 'price' => 12000, 'rating' => 4.5, 'image' => 'cookies.svg'],
-            ['id' => 3, 'name' => 'Brownie', 'desc' => 'Vanilla sponge with a chocolate drip and fresh strawberries on top.', 'price' => 12000, 'rating' => 4.5, 'image' => 'brownie-2.svg'],
-            ['id' => 4, 'name' => 'Muffins', 'desc' => 'A light celebration cake finished with seasonal fruit.', 'price' => 15000, 'rating' => 4.5, 'image' => 'muffins.svg'],
-            ['id' => 5, 'name' => 'Doughnut', 'desc' => 'Soft red velvet sponge layered with cream cheese frosting.', 'price' => 12000, 'rating' => 4.5, 'image' => 'doughnut-3.svg'],
+            'id' => $product->id,
+            'name' => $product->name,
+            'desc' => $product->description,
+            'price' => $product->price,
+            'rating' => $product->rating,
+            'image' => $product->image_url,
+            'category' => $product->category->name,
+            'detail_url' => $product->detail_url,
         ];
     }
 
@@ -109,13 +130,6 @@ new class extends Component
             ['label' => 'Select Shape & Size', 'icon' => 'gift'],
             ['label' => 'Share your Inspiration', 'icon' => 'bag'],
         ];
-    }
-
-    public function addToCart(int $productId): void
-    {
-        // Replace with real cart logic (session, DB, or a Cart service).
-        $this->dispatch('toast', message: 'Added to cart.', type: 'success');
-        $this->dispatch('cart-updated', productId: $productId)->to('cart-icon');
     }
 
 }

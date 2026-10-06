@@ -80,7 +80,7 @@ new class extends Component
                                 <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h1l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2 5h13" />
                                 </svg>
-                                {{ $pastry['category'] }}
+                                {{ $pastry['category'] ?? 'Pastry' }}
                             </div>
                         </div>
 

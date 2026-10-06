@@ -162,7 +162,7 @@ new class extends Component
                                     {{-- Product Info --}}
                                     <div class="p-2">
                                         <h3 class="font-bold text-gray-900 text-lg mb-2">
-                                            <a href="{{ route('products.show', $product) }}" wire:navigate class="hover:text-[#633e2c] hover:underline">
+                                            <a href="{{ $product->detail_url }}" wire:navigate class="hover:text-[#633e2c] hover:underline">
                                             {{ $product->name }}
                                             </a>
                                         </h3>

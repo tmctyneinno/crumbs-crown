@@ -26,7 +26,7 @@ class ProductDetailsTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->get(route('products.show', $product))
+        $this->get($product->detail_url)
             ->assertOk()
             ->assertSee('Birthday Cake')
             ->assertSee('A soft vanilla cake for celebrations.')
@@ -49,7 +49,7 @@ class ProductDetailsTest extends TestCase
             'is_active' => false,
         ]);
 
-        $this->get(route('products.show', $product))->assertNotFound();
+        $this->get($product->detail_url)->assertNotFound();
     }
 
     public function test_product_details_can_add_the_product_to_the_shared_cart(): void
@@ -63,12 +63,45 @@ class ProductDetailsTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->from(route('products.show', $product))
-            ->post(route('products.cart.store', $product))
-            ->assertRedirect(route('products.show', $product));
+        $response = $this->from($product->detail_url)
+            ->post(route('products.cart.store', $product));
+        $response->assertRedirect();
 
         $this->assertSame([$product->id => 1], session('cart'));
-        $this->get(route('products.show', $product))->assertSee('Cart Cake added to your cart.');
+        $this->get($response->headers->get('Location'))->assertSee('Cart Cake added to your cart.');
+    }
+
+    public function test_product_detail_urls_encrypt_ids_and_reject_plain_numeric_ids(): void
+    {
+        $category = Category::create(['name' => 'Cakes', 'slug' => 'cakes']);
+        $product = Product::create([
+            'name' => 'Private ID Cake',
+            'description' => 'A product with a protected URL.',
+            'price' => 18000,
+            'category_id' => $category->id,
+        ]);
+
+        $this->assertStringNotContainsString('/'.$product->id, $product->detail_url);
+        $this->get($product->detail_url)->assertOk()->assertSee('Private ID Cake');
+        $this->get('/products/'.$product->id)->assertNotFound();
+    }
+
+    public function test_product_detail_encryption_token_is_compact_and_rejects_tampering(): void
+    {
+        $category = Category::create(['name' => 'Cakes', 'slug' => 'cakes']);
+        $product = Product::create([
+            'name' => 'Compact URL Cake',
+            'description' => 'A product with a short encrypted URL.',
+            'price' => 18000,
+            'category_id' => $category->id,
+        ]);
+
+        $token = basename(parse_url($product->detail_url, PHP_URL_PATH));
+
+        $this->assertLessThan(60, strlen($token));
+        $this->get($product->detail_url)->assertOk()->assertSee('Compact URL Cake');
+        $tamperedToken = substr($token, 0, -1).($token[-1] === 'A' ? 'B' : 'A');
+        $this->get('/products/'.$tamperedToken)->assertNotFound();
     }
 
     public function test_product_detail_adds_the_selected_quantity_to_the_shared_cart(): void

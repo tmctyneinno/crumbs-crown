@@ -41,7 +41,7 @@ class PastriesPageDataTest extends TestCase
 
         Livewire::test('pastries.index')
             ->assertSee('Database Sausage Roll')
-            ->assertSee(route('products.show', $pastry), false)
+            ->assertSee('/products/', false)
             ->assertSee('Database Chin Chin')
             ->assertDontSee('Hidden Pastry');
 

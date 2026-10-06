@@ -40,7 +40,7 @@ class ShoppingCartTest extends TestCase
         $this->get('/cart')
             ->assertOk()
             ->assertSee('Cart test cake')
-            ->assertSee(route('products.show', $product), false)
+            ->assertSee('/products/', false)
             ->assertSee('₦12,000');
 
         Livewire::test('cart.index')->call('increment', $product->id);

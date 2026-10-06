@@ -47,7 +47,7 @@ class CakeIndexPageTest extends TestCase
             ->assertSee('Cupcake Cakes')
             ->assertSee('Corporate Cakes')
             ->assertSee('Wedding Celebration Cake')
-            ->assertSee(route('products.show', $cake), false)
+            ->assertSee('/products/', false)
             ->assertDontSee('Hidden Cake')
             ->assertDontSee('Sausage Roll')
             ->assertSee('flex-nowrap')

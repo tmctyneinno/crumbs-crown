@@ -206,7 +206,7 @@ new class extends Component
                 @foreach ($cartItems as $item)
                     <div class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
                         <div class="min-w-0">
-                            <a href="{{ route('products.show', $item['id']) }}" wire:navigate class="font-medium text-neutral-900 hover:underline">{{ $item['name'] }}</a>
+                            <a href="{{ \App\Models\Product::detailUrlForId($item['id']) }}" wire:navigate class="font-medium text-neutral-900 hover:underline">{{ $item['name'] }}</a>
                             <p class="mt-1 text-xs text-neutral-500">{{ $item['size'] }} · Qty {{ $item['qty'] }}</p>
                             @if (! empty($item['options']['flavour']))
                                 <p class="mt-1 text-xs text-neutral-500">Flavour: {{ $item['options']['flavour'] }}</p>
