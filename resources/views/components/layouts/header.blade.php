@@ -1,5 +1,5 @@
 <header class="fixed w-full top-0 z-50 bg-[#5A2F20]/95 backdrop-blur-md border-b border-[#5C3A2E]/20" x-data="{ mobileMenuOpen: false, accountMenuOpen: false }">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-0 sm:px-6 lg:px-0">
         <div class="flex justify-between items-center h-20">
             
             <!-- Logo -->

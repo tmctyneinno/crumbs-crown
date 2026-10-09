@@ -25,8 +25,8 @@ new class extends Component
             'title'       => 'Orders & Customer Care',
             'description' => 'For questions about your order, products, delivery or general assistance',
             'details'     => [
-                ['label' => 'Whatsapp', 'value' => '08123456789'],
-                ['label' => 'Telephone', 'value' => '08123456789'],
+                ['label' => '', 'value' => ''],
+                ['label' => '', 'value' => ''],
             ],
             'cta'         => 'Contact Customer Care',
             'href'        => '#',
@@ -36,30 +36,30 @@ new class extends Component
             'title'       => 'General Enquiries',
             'description' => 'For general questions about Crumbs & Crown, our products and services',
             'details'     => [
-                ['label' => 'Email Address', 'value' => 'enquiry@crumbsandcrown.com'],
+                ['label' => 'Email Address', 'value' => 'orders@crumbscrown.ng'],
             ],
             'cta'         => 'Send An Email',
-            'href'        => 'mailto:enquiry@crumbsandcrown.com',
+            'href'        => 'mailto:orders@crumbscrown.ng',
         ],
         [
             'icon'        => 'gift',
             'title'       => 'Corporate Gifting',
             'description' => 'Talk to our corporate team about bulk orders, branded gifts and recurring gifts',
             'details'     => [
-                ['label' => 'Email Address', 'value' => 'corporate@crumbsandcrown.com'],
+                ['label' => 'Email Address', 'value' => 'orders@crumbscrown.ng'],
             ],
             'cta'         => 'Corporate Enquiry',
-            'href'        => 'mailto:corporate@crumbsandcrown.com',
+            'href'        => 'mailto:orders@crumbscrown.ng',
         ],
         [
             'icon'        => 'rings',
             'title'       => 'Weddings & Events',
             'description' => 'Tell us about your wedding or event and we will help you create something memorable',
             'details'     => [
-                ['label' => 'Email Address', 'value' => 'events@crumbsandcrown.com'],
+                ['label' => 'Email Address', 'value' => 'orders@crumbscrown.ng'],
             ],
             'cta'         => 'Plan Your Event',
-            'href'        => 'mailto:events@crumbsandcrown.com',
+            'href'        => 'mailto:orders@crumbscrown.ng',
         ],
     ];
 
@@ -158,7 +158,7 @@ new class extends Component
 
                     </div>
 
-                    <h3 class="font-serif text-lg text-amber-900 mb-1.5">{{ $method['title'] }}</h3>
+                    <h3 class=" text-lg text-amber-900 mb-1.5">{{ $method['title'] }}</h3>
                     <p class="text-sm text-neutral-500 leading-snug mb-4">{{ $method['description'] }}</p>
 
                     <div class="space-y-2.5 mb-5">
@@ -210,35 +210,59 @@ new class extends Component
                 </div>
 
                 {{-- Location card --}}
-                <div class="rounded-2xl bg-white border border-neutral-200 p-5 overflow-hidden">
-                    <h4 class="text-sm font-bold uppercase tracking-wide text-neutral-900 mb-4">Crumbs & Crown</h4>
+                <div class="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+                    <div class="p-5 sm:p-6">
+                        <div class="flex items-start gap-3">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-900">
+                                <livewire:connect.icon :name="'pin'" :class="'w-5 h-5'" />
+                            </span>
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-[0.16em] text-amber-800">Visit us</p>
+                                <h4 class="mt-1 font-serif text-xl text-neutral-900">Crumbs &amp; Crown</h4>
+                                <p class="mt-0.5 text-sm text-neutral-500">Lagos, Nigeria</p>
+                            </div>
+                        </div>
 
-                    <div class="grid grid-cols-2 gap-4 mb-5 text-sm">
-                        <div>
-                            <p class="font-bold text-neutral-900 mb-1">Address</p>
-                            <p class="flex items-center gap-1 text-neutral-500">
-                                <livewire:connect.icon :name="'pin'" :class="'w-4 h-4'" />
-                                Lagos, Nigeria
+                        <div class="mt-5 border-t border-neutral-100 pt-4">
+                            <p class="text-xs font-bold uppercase tracking-wide text-neutral-500">Address</p>
+                            <p class="mt-1 text-sm font-semibold text-neutral-800">United Kingdom</p>
+                            <p class="text-sm leading-relaxed text-neutral-700">
+                                85 Great Portland Street &middot; London W1W 7LT &middot; United Kingdom
                             </p>
-                        </div>
-                        <div>
-                            <p class="font-bold text-neutral-900 mb-1">Opening Hours</p>
-                            <p class="text-neutral-500">Monday - Saturday</p>
-                            <p class="text-neutral-400">9:00 AM - 7:00 PM</p>
-                        </div>
-                        <div class="col-start-2">
-                            <p class="text-neutral-500">Sunday</p>
-                            <p class="text-neutral-400">10:00 AM - 5:00 PM</p>
+                            <p class="mt-1 text-sm leading-relaxed text-neutral-600">
+                                orders@crumbscrown.ng &middot; +44-2078560149
+                            </p>
+
+                            <p class="mt-4 text-sm font-semibold text-neutral-800">Africa: Nigeria</p>
+                            <p class="text-sm leading-relaxed text-neutral-700">
+                                2nd Floor, 1 Adeola Adeoye Street, Off Toyin Street, Ikeja, Lagos, Nigeria
+                            </p>
+                            <p class="mt-1 text-sm leading-relaxed text-neutral-600">
+                                orders@crumbscrown.ng &middot; +234- 915-341-4314</p>
+                            <a
+                                href="https://www.google.com/maps/search/?api=1&amp;query=2nd+Floor%2C+1+Adeola+Adeoye+Street%2C+Off+Toyin+Street%2C+Ikeja%2C+Lagos%2C+Nigeria"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-900 hover:text-amber-700"
+                            >
+                                Get directions
+                                <livewire:connect.icon :name="'arrow-up-right'" :class="'w-4 h-4'" />
+                            </a>
                         </div>
                     </div>
 
-                    <div class="-mx-5 -mb-5">
-                        <img
-                            src="{{ asset('images/map-placeholder.png') }}"
-                            alt="Map to Crumbs & Crown"
-                            class="w-full h-48 object-cover grayscale sepia-[.2] opacity-90"
-                            loading="lazy"
-                        />
+                    <div class="border-t border-neutral-100 bg-neutral-50/70 p-5 sm:p-6">
+                        <h5 class="text-xs font-bold uppercase tracking-[0.16em] text-neutral-700">Opening hours</h5>
+                        <dl class="mt-3 space-y-2 text-sm">
+                            <div class="flex items-baseline justify-between gap-4">
+                                <dt class="text-neutral-600">Monday – Saturday</dt>
+                                <dd class="shrink-0 font-medium text-neutral-900">9:00 AM – 7:00 PM</dd>
+                            </div>
+                            <div class="flex items-baseline justify-between gap-4">
+                                <dt class="text-neutral-600">Sunday</dt>
+                                <dd class="shrink-0 font-medium text-neutral-900">10:00 AM – 5:00 PM</dd>
+                            </div>
+                        </dl>
                     </div>
                 </div>
             </div>
@@ -314,6 +338,7 @@ new class extends Component
                 </form>
             </div>
         </div>
+
     </div>
 </div>
 

@@ -99,7 +99,7 @@ new class extends Component
 
                     {{-- Shop Column --}}
                     <div class="lg:col-span-2">
-                        <h3 class="font-serif text-lg text-white mb-4">Shop</h3>
+                        <h3 class="text-lg text-white mb-4">Shop</h3>
                         <ul class="space-y-3">
                             @foreach ($shopLinks as $link)
                                 <li>
@@ -117,7 +117,7 @@ new class extends Component
 
                     {{-- Celebrate Column --}}
                     <div class="lg:col-span-2">
-                        <h3 class="font-serif text-lg text-white mb-4">Celebrate</h3>
+                        <h3 class="text-lg text-white mb-4">Celebrate</h3>
                         <ul class="space-y-3">
                             @foreach ($celebrateLinks as $link)
                                 <li>
@@ -135,7 +135,7 @@ new class extends Component
 
                     {{-- Help Column --}}
                     <div class="lg:col-span-2">
-                        <h3 class="font-serif text-lg text-white mb-4">Help</h3>
+                        <h3 class="text-lg text-white mb-4">Help</h3>
                         <ul class="space-y-3">
                             @foreach ($helpLinks as $link)
                                 <li>
@@ -153,7 +153,7 @@ new class extends Component
 
                     {{-- Company Column --}}
                     <div class="lg:col-span-2">
-                        <h3 class="font-serif text-lg text-white mb-4">Company</h3>
+                        <h3 class="text-lg text-white mb-4">Company</h3>
                         <ul class="space-y-3">
                             @foreach ($companyLinks as $link)
                                 <li>
@@ -177,7 +177,7 @@ new class extends Component
 
                         {{-- Left: Text --}}
                         <div class="lg:col-span-7">
-                            <h3 class="font-serif text-2xl sm:text-3xl text-white mb-2">
+                            <h3 class="text-2xl sm:text-3xl text-white mb-2">
                                 Subscribe to Our Sweet Newsletter
                             </h3>
                             <p class="text-white/70">
@@ -223,7 +223,10 @@ new class extends Component
                         </p>
                         <div class="text-left sm:text-right">
                             <p>85 Great Portland Street &middot; London W1W 7LT &middot; United Kingdom</p>
-                            <p>info@igrcfp.org &middot; +44 (0)20 XXXX XXXX</p>
+                            <p>orders@crumbscrown.ng &middot; +44-2078560149</p>
+                            <p>Africa: Nigeria</p>
+                            <p>2nd Floor, 1 Adeola Adeoye Street, Off Toyin Street, Ikeja, Lagos Nigeria</p>
+                            <p>+234- 915-341-4314</p>
                         </div>
                     </div>
                 </div>

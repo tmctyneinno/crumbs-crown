@@ -6,7 +6,7 @@
        
     </div>
     <!-- ===== LEFT CONTENT ===== -->
-    <div class="space-y-8 z-30 translate-y-12 px-14  text-center lg:text-left">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 z-30 translate-y-12 text-center lg:text-left">
         <!-- Description -->
         <p class="text-white text-base sm:text-lg  max-w-md mx-auto lg:mx-0 font-sans text-[13px] font-semibold text-white uppercase">
             CRAFTED TO DELIGHT
